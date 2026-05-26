@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerador de Treinadores Pixelmon</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Gerador de Treinadores Pixelmon</h1>
+        <p>Preset completo de NPC treinador para Pixelmon 1.21.1-9.3.16.</p>
+      </div>
+      <div class="top-actions">
+        <button type="button" id="themeToggleButton" aria-pressed="false">Modo escuro</button>
+        <button type="button" id="loadJsonButton">Carregar JSON</button>
+        <button type="button" id="resetButton" class="danger">Resetar</button>
+        <input type="file" id="loadJsonInput" class="hidden" accept="application/json,.json">
+      </div>
+    </header>
+
+    <div class="layout">
+      <form id="npcForm" class="form-stack" autocomplete="off">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Identidade</h2>
+          </div>
+          <div class="panel-body">
+            <div class="grid">
+              <div class="field">
+                <label for="namespace">Namespace</label>
+                <input id="namespace" name="namespace" value="customnpcs" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="presetPath">Preset path</label>
+                <input id="presetPath" name="presetPath" value="trainers/meu_treinador" spellcheck="false">
+              </div>
+              <div class="field full">
+                <label for="names">Nomes possíveis</label>
+                <textarea id="names" name="names" spellcheck="false">Ari</textarea>
+                <span class="hint">Um nome por linha.</span>
+              </div>
+              <div class="field">
+                <label for="titleText">Título na placa</label>
+                <input id="titleText" name="titleText" placeholder="Treinador iniciante">
+              </div>
+              <div class="field">
+                <label for="titleColor">Cor do título</label>
+                <select id="titleColor" name="titleColor">
+                  <option value="">Padrão</option>
+                  <option value="white">white</option>
+                  <option value="gray">gray</option>
+                  <option value="gold">gold</option>
+                  <option value="yellow">yellow</option>
+                  <option value="green">green</option>
+                  <option value="aqua">aqua</option>
+                  <option value="red">red</option>
+                  <option value="light_purple">light_purple</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Aparência</h2>
+          </div>
+          <div class="panel-body">
+            <div class="grid">
+              <div class="field full">
+                <label for="textures">Texturas</label>
+                <textarea id="textures" name="textures" spellcheck="false">pixelmon:textures/steve/bugcatcher1.png</textarea>
+                <span class="hint">Uma ResourceLocation por linha.</span>
+              </div>
+              <label class="checkline" for="slim">
+                <input type="checkbox" id="slim" name="slim" checked>
+                Modelo slim
+              </label>
+              <label class="checkline" for="titleBold">
+                <input type="checkbox" id="titleBold" name="titleBold">
+                Título em negrito
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Propriedades</h2>
+          </div>
+          <div class="panel-body">
+            <div class="grid three">
+              <div class="field">
+                <label for="health">Vida</label>
+                <input id="health" name="health" type="number" min="0.1" step="0.1" value="20">
+              </div>
+              <div class="field">
+                <label for="eyeHeight">Altura dos olhos</label>
+                <input id="eyeHeight" name="eyeHeight" type="number" min="0.1" step="0.1" value="1.9">
+              </div>
+              <div class="field">
+                <label for="width">Largura</label>
+                <input id="width" name="width" type="number" min="0.1" step="0.01" value="0.65">
+              </div>
+              <div class="field">
+                <label for="height">Altura</label>
+                <input id="height" name="height" type="number" min="0.1" step="0.1" value="2.0">
+              </div>
+              <div class="field">
+                <label for="profession">Profissão AI</label>
+                <input id="profession" name="profession" value="minecraft:farmer" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="nameplate">Placa de nome</label>
+                <select id="nameplate" name="nameplate">
+                  <option value="true">Ativa</option>
+                  <option value="false">Oculta</option>
+                </select>
+              </div>
+              <div class="field full">
+                <div class="check-grid">
+                  <label class="checkline" for="pushable">
+                    <input type="checkbox" id="pushable" name="pushable">
+                    Empurrável
+                  </label>
+                  <label class="checkline" for="child">
+                    <input type="checkbox" id="child" name="child">
+                    Criança
+                  </label>
+                  <label class="checkline" for="invulnerable">
+                    <input type="checkbox" id="invulnerable" name="invulnerable">
+                    Invulnerável
+                  </label>
+                  <label class="checkline" for="immovable">
+                    <input type="checkbox" id="immovable" name="immovable">
+                    Imóvel
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Equipe</h2>
+          </div>
+          <div class="panel-body">
+            <div class="radio-row">
+              <label class="radio-card" for="partyModeSpec">
+                <input type="radio" id="partyModeSpec" name="partyMode" value="spec" checked>
+                Equipe fixa
+              </label>
+              <label class="radio-card" for="partyModeRandom">
+                <input type="radio" id="partyModeRandom" name="partyMode" value="random">
+                Pool aleatória
+              </label>
+            </div>
+
+            <div id="specPartyPanel" class="party-mode-panel">
+              <div class="field">
+                <label for="partySpecs">Pokémon/specs</label>
+                <textarea id="partySpecs" name="partySpecs" spellcheck="false">Pikachu lvl:12
+Bulbasaur lvl:10</textarea>
+                <span class="hint">Uma spec por linha.</span>
+              </div>
+            </div>
+
+            <div id="randomPartyPanel" class="party-mode-panel hidden">
+              <div class="grid">
+                <div class="field full">
+                  <label for="partyOptions">Pool de espécies/specs</label>
+                  <textarea id="partyOptions" name="partyOptions" spellcheck="false">Caterpie
+Metapod
+Butterfree</textarea>
+                </div>
+                <div class="field">
+                  <label for="minSelections">Mínimo</label>
+                  <input id="minSelections" name="minSelections" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="field">
+                  <label for="maxSelections">Máximo</label>
+                  <input id="maxSelections" name="maxSelections" type="number" min="1" step="1" value="3">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Diálogo e batalha</h2>
+          </div>
+          <div class="panel-body">
+            <div class="grid">
+              <div class="field">
+                <label for="dialogueTitle">Título do diálogo</label>
+                <input id="dialogueTitle" name="dialogueTitle" value="pixelmon.npc.dialogue.battle.trainer.wild" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="battleRules">Battle rule</label>
+                <input id="battleRules" name="battleRules" placeholder="pixelmon:ag_double" spellcheck="false">
+              </div>
+              <div class="field full">
+                <label for="introMessage">Fala inicial</label>
+                <textarea id="introMessage" name="introMessage">Hora de batalhar!</textarea>
+              </div>
+              <div class="field">
+                <label for="winMessage">Fala ao vencer o jogador</label>
+                <textarea id="winMessage" name="winMessage">Boa batalha.</textarea>
+              </div>
+              <div class="field">
+                <label for="loseMessage">Fala ao perder para o jogador</label>
+                <textarea id="loseMessage" name="loseMessage">Você foi melhor desta vez.</textarea>
+              </div>
+              <div class="field full">
+                <label for="noBattleMessage">Sem Pokémon apto</label>
+                <input id="noBattleMessage" name="noBattleMessage" value="Você não tem nenhum Pokémon apto para batalhar!">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Recompensa e cooldown</h2>
+          </div>
+          <div class="panel-body">
+            <div class="grid">
+              <div class="field">
+                <label for="money">Dinheiro</label>
+                <input id="money" name="money" type="number" min="0" step="1" value="100">
+              </div>
+              <label class="checkline" for="cooldownEnabled">
+                <input type="checkbox" id="cooldownEnabled" name="cooldownEnabled">
+                Ativar cooldown
+              </label>
+              <div id="cooldownFields" class="field full hidden">
+                <div class="grid">
+                  <div class="field">
+                    <label for="cooldownKey">Cooldown key</label>
+                    <input id="cooldownKey" name="cooldownKey" value="customnpcs:trainers_meu_treinador" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="cooldownAmount">Duração</label>
+                    <input id="cooldownAmount" name="cooldownAmount" type="number" min="1" step="1" value="1">
+                  </div>
+                  <div class="field">
+                    <label for="cooldownUnit">Unidade</label>
+                    <select id="cooldownUnit" name="cooldownUnit">
+                      <option value="MINUTES">MINUTES</option>
+                      <option value="HOURS">HOURS</option>
+                      <option value="DAYS">DAYS</option>
+                    </select>
+                  </div>
+                  <div class="field full">
+                    <label for="cooldownMessage">Mensagem de cooldown</label>
+                    <input id="cooldownMessage" name="cooldownMessage" value="Você já batalhou com este treinador recentemente.">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </form>
+
+      <p class="footer-note">Referências como Pokémon, texturas e battle rules são validadas pelo Pixelmon/Minecraft ao carregar o datapack.</p>
+
+      <aside class="preview-stack">
+        <section class="panel preview-panel">
+          <div class="panel-header">
+            <h2>Preview JSON</h2>
+            <div class="json-tools">
+              <button type="button" id="copyButton">Copiar</button>
+              <button type="button" id="downloadButton" class="primary">Baixar JSON</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <span class="field-label">Caminho sugerido</span>
+              <div id="suggestedPath" class="path-box"></div>
+            </div>
+            <div id="statusLine" class="inline-status" aria-live="polite">
+              <span class="status-dot"></span>
+              <span>JSON válido.</span>
+            </div>
+            <div id="issuesBlock" class="hidden">
+              <ul id="issuesList" class="issues"></ul>
+            </div>
+            <div id="warningsBlock">
+              <ul id="warningsList" class="warnings"></ul>
+            </div>
+          </div>
+          <pre id="jsonPreview" class="json-preview" aria-label="Preview JSON"></pre>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
