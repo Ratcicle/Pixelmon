@@ -25,6 +25,52 @@
       <form id="npcForm" class="form-stack" autocomplete="off">
         <section class="panel">
           <div class="panel-header">
+            <h2>Equipe</h2>
+          </div>
+          <div class="panel-body">
+            <div class="radio-row">
+              <label class="radio-card" for="partyModeSpec">
+                <input type="radio" id="partyModeSpec" name="partyMode" value="spec" checked>
+                Equipe fixa
+              </label>
+              <label class="radio-card" for="partyModeRandom">
+                <input type="radio" id="partyModeRandom" name="partyMode" value="random">
+                Pool aleatória
+              </label>
+            </div>
+
+            <div id="specPartyPanel" class="party-mode-panel">
+              <div class="field">
+                <label for="partySpecs">Pokémon/specs</label>
+                <textarea id="partySpecs" name="partySpecs" spellcheck="false">Pikachu lvl:12
+Bulbasaur lvl:10</textarea>
+                <span class="hint">Uma spec por linha.</span>
+              </div>
+            </div>
+
+            <div id="randomPartyPanel" class="party-mode-panel hidden">
+              <div class="grid">
+                <div class="field full">
+                  <label for="partyOptions">Pool de espécies/specs</label>
+                  <textarea id="partyOptions" name="partyOptions" spellcheck="false">Caterpie
+Metapod
+Butterfree</textarea>
+                </div>
+                <div class="field">
+                  <label for="minSelections">Mínimo</label>
+                  <input id="minSelections" name="minSelections" type="number" min="1" step="1" value="1">
+                </div>
+                <div class="field">
+                  <label for="maxSelections">Máximo</label>
+                  <input id="maxSelections" name="maxSelections" type="number" min="1" step="1" value="3">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
             <h2>Identidade</h2>
           </div>
           <div class="panel-body">
@@ -110,8 +156,8 @@
                 <input id="height" name="height" type="number" min="0.1" step="0.1" value="2.0">
               </div>
               <div class="field">
-                <label for="profession">Profissão AI</label>
-                <input id="profession" name="profession" value="minecraft:farmer" spellcheck="false">
+                <label for="lookDistance">Distância do olhar</label>
+                <input id="lookDistance" name="lookDistance" type="number" min="0" step="0.5" value="10">
               </div>
               <div class="field">
                 <label for="nameplate">Placa de nome</label>
@@ -138,52 +184,10 @@
                     <input type="checkbox" id="immovable" name="immovable">
                     Imóvel
                   </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-header">
-            <h2>Equipe</h2>
-          </div>
-          <div class="panel-body">
-            <div class="radio-row">
-              <label class="radio-card" for="partyModeSpec">
-                <input type="radio" id="partyModeSpec" name="partyMode" value="spec" checked>
-                Equipe fixa
-              </label>
-              <label class="radio-card" for="partyModeRandom">
-                <input type="radio" id="partyModeRandom" name="partyMode" value="random">
-                Pool aleatória
-              </label>
-            </div>
-
-            <div id="specPartyPanel" class="party-mode-panel">
-              <div class="field">
-                <label for="partySpecs">Pokémon/specs</label>
-                <textarea id="partySpecs" name="partySpecs" spellcheck="false">Pikachu lvl:12
-Bulbasaur lvl:10</textarea>
-                <span class="hint">Uma spec por linha.</span>
-              </div>
-            </div>
-
-            <div id="randomPartyPanel" class="party-mode-panel hidden">
-              <div class="grid">
-                <div class="field full">
-                  <label for="partyOptions">Pool de espécies/specs</label>
-                  <textarea id="partyOptions" name="partyOptions" spellcheck="false">Caterpie
-Metapod
-Butterfree</textarea>
-                </div>
-                <div class="field">
-                  <label for="minSelections">Mínimo</label>
-                  <input id="minSelections" name="minSelections" type="number" min="1" step="1" value="1">
-                </div>
-                <div class="field">
-                  <label for="maxSelections">Máximo</label>
-                  <input id="maxSelections" name="maxSelections" type="number" min="1" step="1" value="3">
+                  <label class="checkline" for="swim">
+                    <input type="checkbox" id="swim" name="swim">
+                    Pode nadar
+                  </label>
                 </div>
               </div>
             </div>

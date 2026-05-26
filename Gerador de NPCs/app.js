@@ -14,7 +14,8 @@ const DEFAULT_DRAFT = {
   eyeHeight: 1.9,
   width: 0.65,
   height: 2,
-  profession: "minecraft:farmer",
+  lookDistance: 10,
+  swim: false,
   nameplate: true,
   pushable: false,
   child: false,
@@ -69,12 +70,13 @@ const fieldIds = [
   "eyeHeight",
   "width",
   "height",
-  "profession",
+  "lookDistance",
   "nameplate",
   "pushable",
   "child",
   "invulnerable",
   "immovable",
+  "swim",
   "partySpecs",
   "partyOptions",
   "minSelections",
@@ -202,12 +204,13 @@ function readDraft() {
     eyeHeight: numberValue("eyeHeight"),
     width: numberValue("width"),
     height: numberValue("height"),
-    profession: byId.profession.value.trim(),
+    lookDistance: numberValue("lookDistance"),
     nameplate: boolSelectValue("nameplate"),
     pushable: byId.pushable.checked,
     child: byId.child.checked,
     invulnerable: byId.invulnerable.checked,
     immovable: byId.immovable.checked,
+    swim: byId.swim.checked,
     partyMode: getPartyMode(),
     partySpecs: lines(byId.partySpecs.value),
     partyOptions: lines(byId.partyOptions.value),
@@ -242,12 +245,13 @@ function writeDraft(draft) {
   byId.eyeHeight.value = next.eyeHeight;
   byId.width.value = next.width;
   byId.height.value = next.height;
-  byId.profession.value = next.profession;
+  byId.lookDistance.value = next.lookDistance;
   byId.nameplate.value = String(Boolean(next.nameplate));
   byId.pushable.checked = Boolean(next.pushable);
   byId.child.checked = Boolean(next.child);
   byId.invulnerable.checked = Boolean(next.invulnerable);
   byId.immovable.checked = Boolean(next.immovable);
+  byId.swim.checked = Boolean(next.swim);
   document.querySelector("input[name='partyMode'][value='" + next.partyMode + "']").checked = true;
   byId.partySpecs.value = next.partySpecs.join("\n");
   byId.partyOptions.value = next.partyOptions.join("\n");
@@ -292,6 +296,20 @@ function resultList(value) {
   };
 }
 
+function constantBoolean(value) {
+  return {
+    value,
+    type: "pixelmon:constant_boolean"
+  };
+}
+
+function constantString(value) {
+  return {
+    value,
+    type: "pixelmon:constant_string"
+  };
+}
+
 function messagePlayer(message) {
   return {
     messages: [
@@ -330,6 +348,10 @@ function interactionCondition(condition) {
   };
 }
 
+function interactionConditions(conditions) {
+  return conditions.map(interactionCondition);
+}
+
 function notInteractionCondition(condition) {
   return {
     condition: interactionCondition(condition),
@@ -337,10 +359,13 @@ function notInteractionCondition(condition) {
   };
 }
 
-function logicalAndInteraction(conditions) {
+function mainHandCondition() {
   return {
-    conditions: conditions.map(interactionCondition),
-    type: "pixelmon:logical_and"
+    first: constantString("MAIN_HAND"),
+    second: {
+      type: "pixelmon:hand_used"
+    },
+    type: "pixelmon:string_compare"
   };
 }
 
@@ -361,16 +386,22 @@ function onCooldownCondition(draft) {
   };
 }
 
+function trainerContextValue(draft) {
+  return normalizePath(draft.presetPath || "trainer").replace(/\//g, "_");
+}
+
+function setTrainerContext(draft) {
+  return {
+    key: "pixelmon:trainer",
+    value: trainerContextValue(draft),
+    type: "pixelmon:set_string_context"
+  };
+}
+
 function buildModels(draft) {
   const models = draft.textures.map((texture) => ({
     slim: draft.slim,
-    texture: {
-      resource: {
-        resource: texture,
-        fallback: texture
-      },
-      type: "pixelmon:fallback"
-    },
+    texture,
     type: "pixelmon:player"
   }));
 
@@ -445,25 +476,26 @@ function buildProperties(draft) {
 function buildInteractions(draft) {
   const interactions = [];
   const canBattle = canBattleCondition();
+  const mainHand = mainHandCondition();
   const canStart = draft.cooldownEnabled
-    ? logicalAndInteraction([
+    ? [
+      mainHand,
       canBattle,
-      {
-        condition: interactionCondition(onCooldownCondition(draft)),
-        type: "pixelmon:logical_not"
-      }
-    ])
-    : canBattle;
+      notInteractionCondition(onCooldownCondition(draft))
+    ]
+    : [mainHand, canBattle];
   const startResults = [dialogue(draft.dialogueTitle, draft.introMessage)];
 
-  interactions.push(interaction("pixelmon:hit_with_poke_ball", canStart, startResults));
-  interactions.push(interaction("pixelmon:right_click", canStart, startResults));
-  interactions.push(interaction("pixelmon:right_click", notInteractionCondition(canBattle), [messagePlayer(draft.noBattleMessage)]));
+  interactions.push(interaction("pixelmon:right_click", interactionConditions(canStart), startResults));
+  interactions.push(interaction("pixelmon:right_click", interactionConditions([
+    mainHand,
+    notInteractionCondition(canBattle)
+  ]), [messagePlayer(draft.noBattleMessage)]));
 
   if (draft.cooldownEnabled) {
     interactions.push(interaction(
       "pixelmon:right_click",
-      logicalAndInteraction([canBattle, onCooldownCondition(draft)]),
+      interactionConditions([mainHand, onCooldownCondition(draft)]),
       [messagePlayer(draft.cooldownMessage)]
     ));
   }
@@ -475,9 +507,14 @@ function buildInteractions(draft) {
     battleStart.battle_rules = draft.battleRules;
   }
 
-  interactions.push(interaction("pixelmon:close_dialogue", { type: "pixelmon:true" }, [battleStart]));
+  interactions.push(interaction("pixelmon:close_dialogue", interactionConditions([constantBoolean(true)]), [battleStart]));
   interactions.push(interaction("pixelmon:lose_battle", { type: "pixelmon:true" }, [
-    dialogue(draft.dialogueTitle, draft.winMessage, false)
+    dialogue(draft.dialogueTitle, draft.winMessage, false),
+    setTrainerContext(draft),
+    {
+      type: "pixelmon:trigger_interaction_event",
+      event: "pixelmon:lose_to_trainer"
+    }
   ]));
 
   const winResults = [
@@ -496,6 +533,7 @@ function buildInteractions(draft) {
     });
   }
 
+  winResults.push(setTrainerContext(draft));
   winResults.push({
     type: "pixelmon:trigger_interaction_event",
     event: "pixelmon:defeat_trainer"
@@ -524,8 +562,9 @@ function buildPresetJson(draft) {
     ai_provider: {
       type: "pixelmon:constant",
       value: {
-        type: "pixelmon:standard_npc",
-        profession: draft.profession
+        type: "pixelmon:stand_and_look",
+        look_distance: draft.lookDistance,
+        swim: draft.swim
       }
     }
   };
@@ -555,14 +594,14 @@ function validateDraft(draft) {
       issues.push("Textura inválida: " + texture);
     }
   });
-  if (!RESOURCE_LOCATION_RE.test(draft.profession)) {
-    issues.push("Profissão AI deve ser uma ResourceLocation.");
-  }
   ["health", "eyeHeight", "width", "height"].forEach((key) => {
     if (!Number.isFinite(draft[key]) || draft[key] <= 0) {
       issues.push("Valor positivo obrigatório em " + key + ".");
     }
   });
+  if (!Number.isFinite(draft.lookDistance) || draft.lookDistance < 0) {
+    issues.push("Distância do olhar não pode ser negativa.");
+  }
   if (!Number.isFinite(draft.money) || draft.money < 0) {
     issues.push("Dinheiro não pode ser negativo.");
   }
@@ -798,7 +837,11 @@ function draftFromPresetJson(preset, fileName) {
   draft.textures = flattenModels(preset.models);
   const firstModel = preset.models?.values?.[0] || preset.models?.value;
   draft.slim = firstModel?.slim ?? draft.slim;
-  draft.profession = preset.ai_provider?.value?.profession || draft.profession;
+  const aiProvider = preset.ai_provider?.value;
+  if (aiProvider?.type === "pixelmon:stand_and_look") {
+    draft.lookDistance = aiProvider.look_distance ?? draft.lookDistance;
+    draft.swim = Boolean(aiProvider.swim);
+  }
 
   const party = preset.party?.value;
   if (party?.type === "pixelmon:random_combination") {

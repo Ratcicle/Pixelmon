@@ -3,49 +3,22 @@
     "value": {
       "interactions": [
         {
-          "event": "pixelmon:hit_with_poke_ball",
-          "conditions": {
-            "player": {
-              "key": "pixelmon:player",
-              "type": "pixelmon:context_player"
-            },
-            "type": "pixelmon:can_battle"
-          },
-          "results": {
-            "value": [
-              {
-                "title": "pixelmon.npc.dialogue.battle.trainer.wild",
-                "message": "Ready for a quick battle?",
-                "type": "pixelmon:open_dialogue"
-              }
-            ],
-            "type": "pixelmon:constant"
-          }
-        },
-        {
           "event": "pixelmon:right_click",
-          "conditions": {
-            "player": {
-              "key": "pixelmon:player",
-              "type": "pixelmon:context_player"
+          "conditions": [
+            {
+              "condition": {
+                "first": {
+                  "value": "MAIN_HAND",
+                  "type": "pixelmon:constant_string"
+                },
+                "second": {
+                  "type": "pixelmon:hand_used"
+                },
+                "type": "pixelmon:string_compare"
+              },
+              "type": "pixelmon:interaction_condition"
             },
-            "type": "pixelmon:can_battle"
-          },
-          "results": {
-            "value": [
-              {
-                "title": "pixelmon.npc.dialogue.battle.trainer.wild",
-                "message": "Ready for a quick battle?",
-                "type": "pixelmon:open_dialogue"
-              }
-            ],
-            "type": "pixelmon:constant"
-          }
-        },
-        {
-          "event": "pixelmon:right_click",
-          "conditions": {
-            "condition": {
+            {
               "condition": {
                 "player": {
                   "key": "pixelmon:player",
@@ -54,9 +27,52 @@
                 "type": "pixelmon:can_battle"
               },
               "type": "pixelmon:interaction_condition"
+            }
+          ],
+          "results": {
+            "value": [
+              {
+                "title": "pixelmon.npc.dialogue.battle.trainer.wild",
+                "message": "Ready for a quick battle?",
+                "type": "pixelmon:open_dialogue"
+              }
+            ],
+            "type": "pixelmon:constant"
+          }
+        },
+        {
+          "event": "pixelmon:right_click",
+          "conditions": [
+            {
+              "condition": {
+                "first": {
+                  "value": "MAIN_HAND",
+                  "type": "pixelmon:constant_string"
+                },
+                "second": {
+                  "type": "pixelmon:hand_used"
+                },
+                "type": "pixelmon:string_compare"
+              },
+              "type": "pixelmon:interaction_condition"
             },
-            "type": "pixelmon:logical_not"
-          },
+            {
+              "condition": {
+                "condition": {
+                  "condition": {
+                    "player": {
+                      "key": "pixelmon:player",
+                      "type": "pixelmon:context_player"
+                    },
+                    "type": "pixelmon:can_battle"
+                  },
+                  "type": "pixelmon:interaction_condition"
+                },
+                "type": "pixelmon:logical_not"
+              },
+              "type": "pixelmon:interaction_condition"
+            }
+          ],
           "results": {
             "value": [
               {
@@ -73,9 +89,15 @@
         },
         {
           "event": "pixelmon:close_dialogue",
-          "conditions": {
-            "type": "pixelmon:true"
-          },
+          "conditions": [
+            {
+              "condition": {
+                "value": true,
+                "type": "pixelmon:constant_boolean"
+              },
+              "type": "pixelmon:interaction_condition"
+            }
+          ],
           "results": {
             "value": [
               {
@@ -97,6 +119,15 @@
                 "message": "Nice try. Keep training!",
                 "fire_close_event": false,
                 "type": "pixelmon:open_dialogue"
+              },
+              {
+                "key": "pixelmon:trainer",
+                "value": "trainers_example_trainer",
+                "type": "pixelmon:set_string_context"
+              },
+              {
+                "type": "pixelmon:trigger_interaction_event",
+                "event": "pixelmon:lose_to_trainer"
               }
             ],
             "type": "pixelmon:constant"
@@ -118,6 +149,11 @@
               {
                 "money": 100,
                 "type": "pixelmon:give_money"
+              },
+              {
+                "key": "pixelmon:trainer",
+                "value": "trainers_example_trainer",
+                "type": "pixelmon:set_string_context"
               },
               {
                 "type": "pixelmon:trigger_interaction_event",
@@ -166,13 +202,7 @@
   "models": {
     "value": {
       "slim": true,
-      "texture": {
-        "resource": {
-          "resource": "pixelmon:textures/steve/bugcatcher1.png",
-          "fallback": "pixelmon:textures/steve/bugcatcher1.png"
-        },
-        "type": "pixelmon:fallback"
-      },
+      "texture": "pixelmon:textures/steve/bugcatcher1.png",
       "type": "pixelmon:player"
     },
     "type": "pixelmon:constant"
@@ -180,8 +210,9 @@
   "ai_provider": {
     "type": "pixelmon:constant",
     "value": {
-      "type": "pixelmon:standard_npc",
-      "profession": "minecraft:farmer"
+      "type": "pixelmon:stand_and_look",
+      "look_distance": 10,
+      "swim": false
     }
   }
 }

@@ -200,6 +200,11 @@ input[type="radio"] {
   gap: 14px;
 }
 
+.form-stack {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+
 .panel {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -419,6 +424,10 @@ label,
 }
 
 @media (max-width: 1080px) {
+  .form-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .json-preview {
     max-height: 560px;
     min-height: 420px;
@@ -451,6 +460,7 @@ label,
   }
 
   .grid,
+  .form-stack,
   .grid.three,
   .radio-row,
   .check-grid {
