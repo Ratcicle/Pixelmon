@@ -28,43 +28,271 @@
             <h2>Equipe</h2>
           </div>
           <div class="panel-body">
-            <div class="radio-row">
-              <label class="radio-card" for="partyModeSpec">
-                <input type="radio" id="partyModeSpec" name="partyMode" value="spec" checked>
-                Equipe fixa
-              </label>
-              <label class="radio-card" for="partyModeRandom">
-                <input type="radio" id="partyModeRandom" name="partyMode" value="random">
-                Pool aleatória
-              </label>
+            <div class="party-tools">
+              <button type="button" id="openPokePasteButton">Importar PokePaste</button>
             </div>
-
-            <div id="specPartyPanel" class="party-mode-panel">
+            <div id="pokePasteImportPanel" class="import-panel hidden">
               <div class="field">
-                <label for="partySpecs">Pokémon/specs</label>
-                <textarea id="partySpecs" name="partySpecs" spellcheck="false">Pikachu lvl:12
-Bulbasaur lvl:10</textarea>
-                <span class="hint">Uma spec por linha.</span>
+                <label for="pokePasteInput">Party PokePaste</label>
+                <textarea id="pokePasteInput" name="pokePasteInput" spellcheck="false" placeholder="Pikachu @ Light Ball&#10;Ability: Static&#10;Level: 50&#10;EVs: 252 SpA / 4 SpD / 252 Spe&#10;Timid Nature&#10;- Thunderbolt"></textarea>
+              </div>
+              <div class="import-actions">
+                <button type="button" id="applyPokePasteButton" class="primary">Aplicar importacao</button>
+                <button type="button" id="closePokePasteButton">Fechar</button>
               </div>
             </div>
+            <div class="party-grid">
+              <fieldset class="pokemon-slot">
+                <legend>Pokémon 1</legend>
+                <div class="grid party-slot-grid">
+                  <div class="field">
+                    <label for="pokemon1Name">Nome/spec base</label>
+                    <input id="pokemon1Name" name="pokemon1Name" value="Pikachu" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon1Level">Lvl</label>
+                    <input id="pokemon1Level" name="pokemon1Level" type="number" min="1" max="100" step="1" value="12">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon1Nature">Nature</label>
+                    <input id="pokemon1Nature" name="pokemon1Nature" placeholder="adamant" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon1Ability">Ability</label>
+                    <input id="pokemon1Ability" name="pokemon1Ability" placeholder="static" spellcheck="false">
+                  </div>
+                  <div class="field full">
+                    <label for="pokemon1HeldItem">Held item</label>
+                    <input id="pokemon1HeldItem" name="pokemon1HeldItem" placeholder="leftovers" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon1Move1">Ataque 1</label>
+                    <input id="pokemon1Move1" name="pokemon1Move1" placeholder="thunderbolt" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon1Move2">Ataque 2</label>
+                    <input id="pokemon1Move2" name="pokemon1Move2" placeholder="quick_attack" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon1Move3">Ataque 3</label>
+                    <input id="pokemon1Move3" name="pokemon1Move3" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon1Move4">Ataque 4</label>
+                    <input id="pokemon1Move4" name="pokemon1Move4" spellcheck="false">
+                  </div>
+                </div>
+              </fieldset>
 
-            <div id="randomPartyPanel" class="party-mode-panel hidden">
-              <div class="grid">
-                <div class="field full">
-                  <label for="partyOptions">Pool de espécies/specs</label>
-                  <textarea id="partyOptions" name="partyOptions" spellcheck="false">Caterpie
-Metapod
-Butterfree</textarea>
+              <fieldset class="pokemon-slot">
+                <legend>Pokémon 2</legend>
+                <div class="grid party-slot-grid">
+                  <div class="field">
+                    <label for="pokemon2Name">Nome/spec base</label>
+                    <input id="pokemon2Name" name="pokemon2Name" value="Bulbasaur" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon2Level">Lvl</label>
+                    <input id="pokemon2Level" name="pokemon2Level" type="number" min="1" max="100" step="1" value="10">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon2Nature">Nature</label>
+                    <input id="pokemon2Nature" name="pokemon2Nature" placeholder="bold" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon2Ability">Ability</label>
+                    <input id="pokemon2Ability" name="pokemon2Ability" placeholder="overgrow" spellcheck="false">
+                  </div>
+                  <div class="field full">
+                    <label for="pokemon2HeldItem">Held item</label>
+                    <input id="pokemon2HeldItem" name="pokemon2HeldItem" placeholder="miracle_seed" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon2Move1">Ataque 1</label>
+                    <input id="pokemon2Move1" name="pokemon2Move1" placeholder="vine_whip" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon2Move2">Ataque 2</label>
+                    <input id="pokemon2Move2" name="pokemon2Move2" placeholder="tackle" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon2Move3">Ataque 3</label>
+                    <input id="pokemon2Move3" name="pokemon2Move3" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon2Move4">Ataque 4</label>
+                    <input id="pokemon2Move4" name="pokemon2Move4" spellcheck="false">
+                  </div>
                 </div>
-                <div class="field">
-                  <label for="minSelections">Mínimo</label>
-                  <input id="minSelections" name="minSelections" type="number" min="1" step="1" value="1">
+              </fieldset>
+
+              <fieldset class="pokemon-slot">
+                <legend>Pokémon 3</legend>
+                <div class="grid party-slot-grid">
+                  <div class="field">
+                    <label for="pokemon3Name">Nome/spec base</label>
+                    <input id="pokemon3Name" name="pokemon3Name" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon3Level">Lvl</label>
+                    <input id="pokemon3Level" name="pokemon3Level" type="number" min="1" max="100" step="1">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon3Nature">Nature</label>
+                    <input id="pokemon3Nature" name="pokemon3Nature" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon3Ability">Ability</label>
+                    <input id="pokemon3Ability" name="pokemon3Ability" spellcheck="false">
+                  </div>
+                  <div class="field full">
+                    <label for="pokemon3HeldItem">Held item</label>
+                    <input id="pokemon3HeldItem" name="pokemon3HeldItem" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon3Move1">Ataque 1</label>
+                    <input id="pokemon3Move1" name="pokemon3Move1" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon3Move2">Ataque 2</label>
+                    <input id="pokemon3Move2" name="pokemon3Move2" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon3Move3">Ataque 3</label>
+                    <input id="pokemon3Move3" name="pokemon3Move3" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon3Move4">Ataque 4</label>
+                    <input id="pokemon3Move4" name="pokemon3Move4" spellcheck="false">
+                  </div>
                 </div>
-                <div class="field">
-                  <label for="maxSelections">Máximo</label>
-                  <input id="maxSelections" name="maxSelections" type="number" min="1" step="1" value="3">
+              </fieldset>
+
+              <fieldset class="pokemon-slot">
+                <legend>Pokémon 4</legend>
+                <div class="grid party-slot-grid">
+                  <div class="field">
+                    <label for="pokemon4Name">Nome/spec base</label>
+                    <input id="pokemon4Name" name="pokemon4Name" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon4Level">Lvl</label>
+                    <input id="pokemon4Level" name="pokemon4Level" type="number" min="1" max="100" step="1">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon4Nature">Nature</label>
+                    <input id="pokemon4Nature" name="pokemon4Nature" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon4Ability">Ability</label>
+                    <input id="pokemon4Ability" name="pokemon4Ability" spellcheck="false">
+                  </div>
+                  <div class="field full">
+                    <label for="pokemon4HeldItem">Held item</label>
+                    <input id="pokemon4HeldItem" name="pokemon4HeldItem" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon4Move1">Ataque 1</label>
+                    <input id="pokemon4Move1" name="pokemon4Move1" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon4Move2">Ataque 2</label>
+                    <input id="pokemon4Move2" name="pokemon4Move2" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon4Move3">Ataque 3</label>
+                    <input id="pokemon4Move3" name="pokemon4Move3" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon4Move4">Ataque 4</label>
+                    <input id="pokemon4Move4" name="pokemon4Move4" spellcheck="false">
+                  </div>
                 </div>
-              </div>
+              </fieldset>
+
+              <fieldset class="pokemon-slot">
+                <legend>Pokémon 5</legend>
+                <div class="grid party-slot-grid">
+                  <div class="field">
+                    <label for="pokemon5Name">Nome/spec base</label>
+                    <input id="pokemon5Name" name="pokemon5Name" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon5Level">Lvl</label>
+                    <input id="pokemon5Level" name="pokemon5Level" type="number" min="1" max="100" step="1">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon5Nature">Nature</label>
+                    <input id="pokemon5Nature" name="pokemon5Nature" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon5Ability">Ability</label>
+                    <input id="pokemon5Ability" name="pokemon5Ability" spellcheck="false">
+                  </div>
+                  <div class="field full">
+                    <label for="pokemon5HeldItem">Held item</label>
+                    <input id="pokemon5HeldItem" name="pokemon5HeldItem" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon5Move1">Ataque 1</label>
+                    <input id="pokemon5Move1" name="pokemon5Move1" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon5Move2">Ataque 2</label>
+                    <input id="pokemon5Move2" name="pokemon5Move2" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon5Move3">Ataque 3</label>
+                    <input id="pokemon5Move3" name="pokemon5Move3" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon5Move4">Ataque 4</label>
+                    <input id="pokemon5Move4" name="pokemon5Move4" spellcheck="false">
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="pokemon-slot">
+                <legend>Pokémon 6</legend>
+                <div class="grid party-slot-grid">
+                  <div class="field">
+                    <label for="pokemon6Name">Nome/spec base</label>
+                    <input id="pokemon6Name" name="pokemon6Name" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon6Level">Lvl</label>
+                    <input id="pokemon6Level" name="pokemon6Level" type="number" min="1" max="100" step="1">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon6Nature">Nature</label>
+                    <input id="pokemon6Nature" name="pokemon6Nature" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon6Ability">Ability</label>
+                    <input id="pokemon6Ability" name="pokemon6Ability" spellcheck="false">
+                  </div>
+                  <div class="field full">
+                    <label for="pokemon6HeldItem">Held item</label>
+                    <input id="pokemon6HeldItem" name="pokemon6HeldItem" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon6Move1">Ataque 1</label>
+                    <input id="pokemon6Move1" name="pokemon6Move1" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon6Move2">Ataque 2</label>
+                    <input id="pokemon6Move2" name="pokemon6Move2" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon6Move3">Ataque 3</label>
+                    <input id="pokemon6Move3" name="pokemon6Move3" spellcheck="false">
+                  </div>
+                  <div class="field">
+                    <label for="pokemon6Move4">Ataque 4</label>
+                    <input id="pokemon6Move4" name="pokemon6Move4" spellcheck="false">
+                  </div>
+                </div>
+              </fieldset>
             </div>
           </div>
         </section>
@@ -306,6 +534,11 @@ Butterfree</textarea>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <script src="data/species.js"></script>
+  <script src="data/natures.js"></script>
+  <script src="data/abilities.js"></script>
+  <script src="data/held-items.js"></script>
+  <script src="data/moves.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

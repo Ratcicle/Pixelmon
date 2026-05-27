@@ -154,7 +154,7 @@ input[type="radio"] {
 }
 
 .app-shell {
-  width: min(1440px, calc(100% - 32px));
+  width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
   padding: 22px 0 28px;
 }
@@ -201,8 +201,118 @@ input[type="radio"] {
 }
 
 .form-stack {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
+}
+
+.form-stack > .panel:first-child {
+  grid-column: 1 / -1;
+}
+
+.form-stack > .panel:first-child textarea {
+  min-height: 150px;
+}
+
+.party-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.import-panel {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface-3);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.import-panel textarea {
+  min-height: 220px;
+}
+
+.import-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.party-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pokemon-slot {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  margin: 0;
+  padding: 12px;
+  min-width: 0;
+  background: var(--surface-3);
+}
+
+.pokemon-slot legend {
+  padding: 0 6px;
+  color: var(--label);
+  font-weight: 750;
+  font-size: 13px;
+}
+
+.party-slot-grid {
+  grid-template-columns: minmax(0, 1.3fr) minmax(92px, 0.45fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.stat-block {
+  margin-top: 2px;
+}
+
+.stat-heading {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.stat-title {
+  display: block;
+}
+
+.stat-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.stat-actions button {
+  min-height: 24px;
+  padding: 0 5px;
+  font-size: 11px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat-field {
+  display: grid;
+  gap: 5px;
+}
+
+.stat-field span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.stat-field input {
+  min-height: 34px;
+  padding: 7px 8px;
 }
 
 .panel {
@@ -424,10 +534,6 @@ label,
 }
 
 @media (max-width: 1080px) {
-  .form-stack {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .json-preview {
     max-height: 560px;
     min-height: 420px;
@@ -436,7 +542,7 @@ label,
 
 @media (max-width: 720px) {
   .app-shell {
-    width: min(100% - 20px, 1440px);
+    width: min(100% - 20px, 1180px);
     padding-top: 14px;
   }
 
@@ -451,7 +557,9 @@ label,
   }
 
   .top-actions button,
-  .json-tools button {
+  .json-tools button,
+  .import-actions button,
+  .party-tools button {
     flex: 1 1 auto;
   }
 
@@ -462,6 +570,9 @@ label,
   .grid,
   .form-stack,
   .grid.three,
+  .party-grid,
+  .party-slot-grid,
+  .stat-grid,
   .radio-row,
   .check-grid {
     grid-template-columns: 1fr;

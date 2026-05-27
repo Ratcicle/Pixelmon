@@ -1,6 +1,36 @@
 const RESOURCE_LOCATION_RE = /^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
 const NAMESPACE_RE = /^[a-z0-9_.-]+$/;
 const PATH_RE = /^[a-z0-9_./-]+$/;
+const PARTY_SIZE = 6;
+const STAT_FIELDS = [
+  { suffix: "Hp", label: "HP", token: "hp" },
+  { suffix: "Atk", label: "Atk", token: "atk" },
+  { suffix: "Def", label: "Def", token: "def" },
+  { suffix: "SpAtk", label: "SpA", token: "spatk" },
+  { suffix: "SpDef", label: "SpD", token: "spdef" },
+  { suffix: "Spd", label: "Spe", token: "spd" }
+];
+const POKEMON_FIELDS = [
+  "Name",
+  "Level",
+  "Nature",
+  "Ability",
+  "HeldItem",
+  "Move1",
+  "Move2",
+  "Move3",
+  "Move4",
+  ...STAT_FIELDS.map((stat) => "Iv" + stat.suffix),
+  ...STAT_FIELDS.map((stat) => "Ev" + stat.suffix)
+];
+const DEFAULT_PARTY = [
+  { name: "Pikachu", level: 12, nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] },
+  { name: "Bulbasaur", level: 10, nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] },
+  { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
+  { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
+  { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
+  { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] }
+];
 const DEFAULT_DRAFT = {
   namespace: "customnpcs",
   presetPath: "trainers/meu_treinador",
@@ -21,11 +51,7 @@ const DEFAULT_DRAFT = {
   child: false,
   invulnerable: false,
   immovable: false,
-  partyMode: "spec",
-  partySpecs: ["Pikachu lvl:12", "Bulbasaur lvl:10"],
-  partyOptions: ["Caterpie", "Metapod", "Butterfree"],
-  minSelections: 1,
-  maxSelections: 3,
+  partyPokemon: DEFAULT_PARTY,
   dialogueTitle: "pixelmon.npc.dialogue.battle.trainer.wild",
   battleRules: "",
   introMessage: "Hora de batalhar!",
@@ -48,14 +74,114 @@ const issuesBlock = document.querySelector("#issuesBlock");
 const issuesList = document.querySelector("#issuesList");
 const warningsBlock = document.querySelector("#warningsBlock");
 const warningsList = document.querySelector("#warningsList");
-const specPartyPanel = document.querySelector("#specPartyPanel");
-const randomPartyPanel = document.querySelector("#randomPartyPanel");
 const cooldownFields = document.querySelector("#cooldownFields");
 const toast = document.querySelector("#toast");
 const loadJsonInput = document.querySelector("#loadJsonInput");
 const themeToggleButton = document.querySelector("#themeToggleButton");
+const openPokePasteButton = document.querySelector("#openPokePasteButton");
+const closePokePasteButton = document.querySelector("#closePokePasteButton");
+const applyPokePasteButton = document.querySelector("#applyPokePasteButton");
+const pokePasteImportPanel = document.querySelector("#pokePasteImportPanel");
+const pokePasteInput = document.querySelector("#pokePasteInput");
 let cooldownKeyWasEdited = false;
 const THEME_STORAGE_KEY = "pixelmonTrainerGeneratorTheme";
+const PIXELMON_DATA = window.PixelmonNpcData || {};
+const databaseLookupCache = {};
+
+function pokemonFieldIds() {
+  const ids = [];
+  for (let slot = 1; slot <= PARTY_SIZE; slot += 1) {
+    POKEMON_FIELDS.forEach((field) => {
+      ids.push("pokemon" + slot + field);
+    });
+  }
+  return ids;
+}
+
+function setupPokemonStatFields() {
+  document.querySelectorAll(".pokemon-slot").forEach((slotElement, index) => {
+    const grid = slotElement.querySelector(".party-slot-grid");
+    if (!grid || grid.querySelector(".stat-block")) {
+      return;
+    }
+
+    const slot = index + 1;
+    [
+      { prefix: "Iv", title: "IVs", min: 0, max: 31, placeholder: 31 },
+      { prefix: "Ev", title: "EVs", min: 0, max: 252, placeholder: 0 }
+    ].forEach((group) => {
+      const block = document.createElement("div");
+      block.className = "field full stat-block";
+
+      const heading = document.createElement("div");
+      heading.className = "stat-heading";
+
+      const title = document.createElement("span");
+      title.className = "field-label stat-title";
+      title.textContent = group.title;
+      heading.appendChild(title);
+      block.appendChild(heading);
+
+      const statGrid = document.createElement("div");
+      statGrid.className = "stat-grid";
+      STAT_FIELDS.forEach((stat, statIndex) => {
+        const defaultPokemon = DEFAULT_PARTY[index] || emptyPokemon();
+        const defaultValue = group.prefix === "Iv" ? defaultPokemon.ivs?.[statIndex] : defaultPokemon.evs?.[statIndex];
+        const field = document.createElement("label");
+        field.className = "stat-field";
+        field.setAttribute("for", "pokemon" + slot + group.prefix + stat.suffix);
+
+        const label = document.createElement("span");
+        label.textContent = stat.label;
+        field.appendChild(label);
+
+        const input = document.createElement("input");
+        input.id = "pokemon" + slot + group.prefix + stat.suffix;
+        input.name = input.id;
+        input.type = "number";
+        input.min = String(group.min);
+        input.max = String(group.max);
+        input.step = "1";
+        input.placeholder = String(group.placeholder);
+        if (defaultValue !== "" && typeof defaultValue !== "undefined") {
+          input.value = String(defaultValue);
+        }
+        field.appendChild(input);
+
+        const actions = document.createElement("div");
+        actions.className = "stat-actions";
+
+        const minButton = document.createElement("button");
+        minButton.type = "button";
+        minButton.textContent = "Min";
+        minButton.setAttribute("title", "Definir " + group.title + " " + stat.label + " no mínimo");
+        minButton.addEventListener("click", () => {
+          input.value = String(group.min);
+          render();
+        });
+        actions.appendChild(minButton);
+
+        const maxButton = document.createElement("button");
+        maxButton.type = "button";
+        maxButton.textContent = "Máx";
+        maxButton.setAttribute("title", "Definir " + group.title + " " + stat.label + " no máximo");
+        maxButton.addEventListener("click", () => {
+          input.value = String(group.max);
+          render();
+        });
+        actions.appendChild(maxButton);
+
+        field.appendChild(actions);
+        statGrid.appendChild(field);
+      });
+
+      block.appendChild(statGrid);
+      grid.appendChild(block);
+    });
+  });
+}
+
+setupPokemonStatFields();
 
 const fieldIds = [
   "namespace",
@@ -77,10 +203,7 @@ const fieldIds = [
   "invulnerable",
   "immovable",
   "swim",
-  "partySpecs",
-  "partyOptions",
-  "minSelections",
-  "maxSelections",
+  ...pokemonFieldIds(),
   "dialogueTitle",
   "battleRules",
   "introMessage",
@@ -96,6 +219,114 @@ const fieldIds = [
 ];
 
 const byId = Object.fromEntries(fieldIds.map((id) => [id, document.querySelector("#" + id)]));
+
+function normalizeDatabaseEntry(entry) {
+  if (typeof entry === "string") {
+    return { value: entry, label: "" };
+  }
+  if (!entry || typeof entry !== "object") {
+    return null;
+  }
+  const value = entry.value || entry.id || entry.name;
+  if (!value) {
+    return null;
+  }
+  return {
+    value: String(value),
+    label: entry.label || entry.displayName || entry.name || ""
+  };
+}
+
+function databaseValues(key) {
+  return (PIXELMON_DATA[key] || [])
+    .map(normalizeDatabaseEntry)
+    .filter(Boolean)
+    .sort((a, b) => a.value.localeCompare(b.value));
+}
+
+function lookupKey(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function databaseLookup(key) {
+  if (!databaseLookupCache[key]) {
+    const lookup = new Map();
+    databaseValues(key).forEach((entry) => {
+      [entry.value, entry.label].forEach((value) => {
+        const normalized = lookupKey(value);
+        if (normalized && !lookup.has(normalized)) {
+          lookup.set(normalized, entry.value);
+        }
+      });
+    });
+    databaseLookupCache[key] = lookup;
+  }
+  return databaseLookupCache[key];
+}
+
+function fallbackToken(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/'/g, "")
+    .replace(/[^a-z0-9-]+/g, "_")
+    .replace(/^_|_$/g, "");
+}
+
+function resolveDatabaseValue(key, value, fallback = "token") {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) {
+    return "";
+  }
+  return databaseLookup(key).get(lookupKey(trimmed)) || (fallback === "raw" ? trimmed : fallbackToken(trimmed));
+}
+
+function createDatalist(id, entries) {
+  const datalist = document.createElement("datalist");
+  datalist.id = id;
+  entries.forEach((entry) => {
+    const option = document.createElement("option");
+    option.value = entry.value;
+    if (entry.label && entry.label !== entry.value) {
+      option.label = entry.label;
+    }
+    datalist.appendChild(option);
+  });
+  document.body.appendChild(datalist);
+}
+
+function pokemonInputIds(field) {
+  return Array.from({ length: PARTY_SIZE }, (_, index) => "pokemon" + (index + 1) + field);
+}
+
+function pokemonMoveInputIds() {
+  const ids = [];
+  for (let slot = 1; slot <= PARTY_SIZE; slot += 1) {
+    for (let move = 1; move <= 4; move += 1) {
+      ids.push("pokemon" + slot + "Move" + move);
+    }
+  }
+  return ids;
+}
+
+function setupAutocompleteLists() {
+  [
+    { key: "species", datalistId: "speciesOptions", inputs: pokemonInputIds("Name") },
+    { key: "natures", datalistId: "natureOptions", inputs: pokemonInputIds("Nature") },
+    { key: "abilities", datalistId: "abilityOptions", inputs: pokemonInputIds("Ability") },
+    { key: "heldItems", datalistId: "heldItemOptions", inputs: pokemonInputIds("HeldItem") },
+    { key: "moves", datalistId: "moveOptions", inputs: pokemonMoveInputIds() }
+  ].forEach((config) => {
+    createDatalist(config.datalistId, databaseValues(config.key));
+    config.inputs.forEach((id) => {
+      byId[id]?.setAttribute("list", config.datalistId);
+    });
+  });
+}
 
 function lines(value) {
   return String(value || "")
@@ -186,8 +417,276 @@ function boolSelectValue(id) {
   return byId[id].value === "true";
 }
 
-function getPartyMode() {
-  return document.querySelector("input[name='partyMode']:checked").value;
+function emptyPokemon() {
+  return { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] };
+}
+
+function normalizeStatValues(values) {
+  return Array.from({ length: STAT_FIELDS.length }, (_, index) => {
+    const value = values?.[index];
+    return value === "" || value === null || typeof value === "undefined" ? "" : Number(value);
+  });
+}
+
+function normalizePartyPokemon(pokemon) {
+  const normalized = Array.from({ length: PARTY_SIZE }, (_, index) => ({
+    ...emptyPokemon(),
+    ...(pokemon?.[index] || {})
+  }));
+  return normalized.map((entry) => ({
+    name: String(entry.name || "").trim(),
+    level: entry.level === "" || entry.level === null || typeof entry.level === "undefined" ? "" : Number(entry.level),
+    nature: String(entry.nature || "").trim(),
+    ability: String(entry.ability || "").trim(),
+    heldItem: String(entry.heldItem || "").trim(),
+    moves: Array.from({ length: 4 }, (_, moveIndex) => String(entry.moves?.[moveIndex] || "").trim()),
+    ivs: normalizeStatValues(entry.ivs),
+    evs: normalizeStatValues(entry.evs)
+  }));
+}
+
+function readPartyPokemon() {
+  return Array.from({ length: PARTY_SIZE }, (_, index) => {
+    const slot = index + 1;
+    const levelValue = byId["pokemon" + slot + "Level"].value.trim();
+    const ivs = STAT_FIELDS.map((stat) => {
+      const value = byId["pokemon" + slot + "Iv" + stat.suffix].value.trim();
+      return value ? Number(value) : "";
+    });
+    const evs = STAT_FIELDS.map((stat) => {
+      const value = byId["pokemon" + slot + "Ev" + stat.suffix].value.trim();
+      return value ? Number(value) : "";
+    });
+    return {
+      name: byId["pokemon" + slot + "Name"].value.trim(),
+      level: levelValue ? Number(levelValue) : "",
+      nature: byId["pokemon" + slot + "Nature"].value.trim(),
+      ability: byId["pokemon" + slot + "Ability"].value.trim(),
+      heldItem: byId["pokemon" + slot + "HeldItem"].value.trim(),
+      moves: [1, 2, 3, 4].map((moveIndex) => byId["pokemon" + slot + "Move" + moveIndex].value.trim()),
+      ivs,
+      evs
+    };
+  });
+}
+
+function writePartyPokemon(pokemon) {
+  normalizePartyPokemon(pokemon).forEach((entry, index) => {
+    const slot = index + 1;
+    byId["pokemon" + slot + "Name"].value = entry.name;
+    byId["pokemon" + slot + "Level"].value = entry.level === "" || Number.isNaN(entry.level) ? "" : entry.level;
+    byId["pokemon" + slot + "Nature"].value = entry.nature;
+    byId["pokemon" + slot + "Ability"].value = entry.ability;
+    byId["pokemon" + slot + "HeldItem"].value = entry.heldItem;
+    entry.moves.forEach((move, moveIndex) => {
+      byId["pokemon" + slot + "Move" + (moveIndex + 1)].value = move;
+    });
+    entry.ivs.forEach((iv, statIndex) => {
+      byId["pokemon" + slot + "Iv" + STAT_FIELDS[statIndex].suffix].value = iv === "" || Number.isNaN(iv) ? "" : iv;
+    });
+    entry.evs.forEach((ev, statIndex) => {
+      byId["pokemon" + slot + "Ev" + STAT_FIELDS[statIndex].suffix].value = ev === "" || Number.isNaN(ev) ? "" : ev;
+    });
+  });
+}
+
+function pokemonHasAnyValue(pokemon) {
+  return Boolean(
+    pokemon.name ||
+    pokemon.level !== "" ||
+    pokemon.nature ||
+    pokemon.ability ||
+    pokemon.heldItem ||
+    pokemon.moves.some(Boolean) ||
+    pokemon.ivs.some((value) => value !== "") ||
+    pokemon.evs.some((value) => value !== "")
+  );
+}
+
+function buildPokemonSpec(pokemon) {
+  const parts = [pokemon.name];
+  if (pokemon.level !== "" && Number.isFinite(Number(pokemon.level))) {
+    parts.push("lvl:" + Number(pokemon.level));
+  }
+  if (pokemon.ability) {
+    parts.push("ability:" + pokemon.ability);
+  }
+  if (pokemon.heldItem) {
+    parts.push("helditem:" + pokemon.heldItem);
+  }
+  if (pokemon.nature) {
+    parts.push("nature:" + pokemon.nature);
+  }
+  pokemon.ivs.forEach((iv, index) => {
+    if (iv !== "" && Number.isFinite(Number(iv))) {
+      parts.push("iv" + STAT_FIELDS[index].token + ":" + Number(iv));
+    }
+  });
+  pokemon.evs.forEach((ev, index) => {
+    if (ev !== "" && Number.isFinite(Number(ev))) {
+      parts.push("ev" + STAT_FIELDS[index].token + ":" + Number(ev));
+    }
+  });
+  pokemon.moves.forEach((move, index) => {
+    if (move) {
+      parts.push("move" + (index + 1) + ":" + move);
+    }
+  });
+  return parts.filter(Boolean).join(" ");
+}
+
+function parsePokemonSpec(spec) {
+  const pokemon = emptyPokemon();
+  const parts = String(spec || "").trim().split(/\s+/).filter(Boolean);
+  const baseParts = [];
+  const statTokenIndexes = Object.fromEntries(STAT_FIELDS.map((stat, index) => [stat.token, index]));
+
+  parts.forEach((part) => {
+    const separator = part.indexOf(":");
+    const key = separator > 0 ? part.slice(0, separator).toLowerCase() : "";
+    const value = separator > 0 ? part.slice(separator + 1) : "";
+
+    if ((key === "lvl" || key === "level") && value) {
+      pokemon.level = Number(value);
+    } else if (key === "nature" && value) {
+      pokemon.nature = value;
+    } else if (key === "ability" && value) {
+      pokemon.ability = value;
+    } else if (key === "helditem" && value) {
+      pokemon.heldItem = value;
+    } else if (/^move[1-4]$/.test(key) && value) {
+      pokemon.moves[Number(key.slice(4)) - 1] = value;
+    } else if (key.startsWith("iv") && typeof statTokenIndexes[key.slice(2)] !== "undefined" && value) {
+      pokemon.ivs[statTokenIndexes[key.slice(2)]] = Number(value);
+    } else if (key.startsWith("ev") && typeof statTokenIndexes[key.slice(2)] !== "undefined" && value) {
+      pokemon.evs[statTokenIndexes[key.slice(2)]] = Number(value);
+    } else {
+      baseParts.push(part);
+    }
+  });
+
+  pokemon.name = baseParts.join(" ");
+  if (!Number.isFinite(pokemon.level)) {
+    pokemon.level = "";
+  }
+  return pokemon;
+}
+
+function parsePokePasteHeader(line) {
+  const parts = String(line || "").split(/\s+@\s+/);
+  const rawIdentity = (parts.shift() || "").trim();
+  const rawHeldItem = parts.join(" @ ").trim();
+  const parentheticals = [...rawIdentity.matchAll(/\(([^()]+)\)/g)]
+    .map((match) => match[1].trim())
+    .filter(Boolean);
+  const parentheticalSpecies = [...parentheticals].reverse().find((value) => !/^(m|f|male|female)$/i.test(value));
+  const cleanedIdentity = rawIdentity
+    .replace(/\s+\((?:M|F|Male|Female)\)\s*$/i, "")
+    .trim();
+  const species = parentheticalSpecies || cleanedIdentity;
+
+  return {
+    species,
+    heldItem: rawHeldItem
+  };
+}
+
+function parsePokePasteStats(value, defaults) {
+  const stats = defaults.slice();
+  const indexes = {
+    hp: 0,
+    atk: 1,
+    def: 2,
+    spa: 3,
+    spd: 4,
+    spe: 5
+  };
+
+  String(value || "").split("/").forEach((part) => {
+    const match = part.trim().match(/^(\d+)\s+(HP|Atk|Def|SpA|SpD|Spe)$/i);
+    if (!match) {
+      return;
+    }
+    const index = indexes[match[2].toLowerCase()];
+    if (typeof index !== "undefined") {
+      stats[index] = Number(match[1]);
+    }
+  });
+
+  return stats;
+}
+
+function parsePokePasteSet(block) {
+  const setLines = String(block || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (!setLines.length || /^=+/.test(setLines[0])) {
+    return null;
+  }
+
+  const pokemon = {
+    ...emptyPokemon(),
+    level: 100,
+    ivs: [31, 31, 31, 31, 31, 31],
+    evs: [0, 0, 0, 0, 0, 0]
+  };
+  const header = parsePokePasteHeader(setLines[0]);
+  pokemon.name = resolveDatabaseValue("species", header.species, "raw");
+  pokemon.heldItem = resolveDatabaseValue("heldItems", header.heldItem);
+  let recognizedDetails = Boolean(header.heldItem);
+
+  setLines.slice(1).forEach((line) => {
+    if (/^Ability:/i.test(line)) {
+      pokemon.ability = resolveDatabaseValue("abilities", line.replace(/^Ability:\s*/i, ""));
+      recognizedDetails = true;
+    } else if (/^Level:/i.test(line)) {
+      const level = Number(line.replace(/^Level:\s*/i, ""));
+      pokemon.level = Number.isFinite(level) ? level : pokemon.level;
+      recognizedDetails = true;
+    } else if (/^EVs:/i.test(line)) {
+      pokemon.evs = parsePokePasteStats(line.replace(/^EVs:\s*/i, ""), [0, 0, 0, 0, 0, 0]);
+      recognizedDetails = true;
+    } else if (/^IVs:/i.test(line)) {
+      pokemon.ivs = parsePokePasteStats(line.replace(/^IVs:\s*/i, ""), [31, 31, 31, 31, 31, 31]);
+      recognizedDetails = true;
+    } else if (/^(.+?)\s+Nature$/i.test(line)) {
+      pokemon.nature = resolveDatabaseValue("natures", line.replace(/\s+Nature$/i, ""));
+      recognizedDetails = true;
+    } else if (/^-\s+/.test(line) && pokemon.moves.filter(Boolean).length < 4) {
+      const move = line.replace(/^-\s+/, "").trim();
+      pokemon.moves[pokemon.moves.filter(Boolean).length] = resolveDatabaseValue("moves", move);
+      recognizedDetails = true;
+    }
+  });
+
+  if (!pokemon.name || (!recognizedDetails && !pokemon.moves.some(Boolean))) {
+    return null;
+  }
+  return pokemon;
+}
+
+function parsePokePasteParty(text) {
+  return String(text || "")
+    .replace(/\r/g, "")
+    .split(/\n{2,}/)
+    .map(parsePokePasteSet)
+    .filter(Boolean)
+    .slice(0, PARTY_SIZE);
+}
+
+function importPokePasteParty() {
+  const importedParty = parsePokePasteParty(pokePasteInput.value);
+  if (!importedParty.length) {
+    showToast("Nenhuma party PokePaste encontrada.");
+    return;
+  }
+
+  writePartyPokemon(importedParty);
+  render();
+  pokePasteImportPanel.classList.add("hidden");
+  showToast("PokePaste importado: " + importedParty.length + " Pokemon.");
 }
 
 function readDraft() {
@@ -211,11 +710,7 @@ function readDraft() {
     invulnerable: byId.invulnerable.checked,
     immovable: byId.immovable.checked,
     swim: byId.swim.checked,
-    partyMode: getPartyMode(),
-    partySpecs: lines(byId.partySpecs.value),
-    partyOptions: lines(byId.partyOptions.value),
-    minSelections: intValue("minSelections"),
-    maxSelections: intValue("maxSelections"),
+    partyPokemon: readPartyPokemon(),
     dialogueTitle: byId.dialogueTitle.value.trim(),
     battleRules: byId.battleRules.value.trim(),
     introMessage: byId.introMessage.value.trim(),
@@ -252,11 +747,7 @@ function writeDraft(draft) {
   byId.invulnerable.checked = Boolean(next.invulnerable);
   byId.immovable.checked = Boolean(next.immovable);
   byId.swim.checked = Boolean(next.swim);
-  document.querySelector("input[name='partyMode'][value='" + next.partyMode + "']").checked = true;
-  byId.partySpecs.value = next.partySpecs.join("\n");
-  byId.partyOptions.value = next.partyOptions.join("\n");
-  byId.minSelections.value = next.minSelections;
-  byId.maxSelections.value = next.maxSelections;
+  writePartyPokemon(next.partyPokemon);
   byId.dialogueTitle.value = next.dialogueTitle;
   byId.battleRules.value = next.battleRules;
   byId.introMessage.value = next.introMessage;
@@ -419,21 +910,11 @@ function buildModels(draft) {
 }
 
 function buildParty(draft) {
-  if (draft.partyMode === "random") {
-    return {
-      value: {
-        options: draft.partyOptions,
-        min_selections: draft.minSelections,
-        max_selections: draft.maxSelections,
-        type: "pixelmon:random_combination"
-      },
-      type: "pixelmon:constant"
-    };
-  }
-
   return {
     value: {
-      specs: draft.partySpecs,
+      specs: draft.partyPokemon
+        .filter((pokemon) => pokemon.name)
+        .map(buildPokemonSpec),
       type: "pixelmon:spec"
     },
     type: "pixelmon:constant"
@@ -482,10 +963,14 @@ function buildInteractions(draft) {
       mainHand,
       canBattle,
       notInteractionCondition(onCooldownCondition(draft))
-    ]
+      ]
     : [mainHand, canBattle];
+  const pokeBallCanStart = draft.cooldownEnabled
+    ? interactionConditions([canBattle, notInteractionCondition(onCooldownCondition(draft))])
+    : canBattle;
   const startResults = [dialogue(draft.dialogueTitle, draft.introMessage)];
 
+  interactions.push(interaction("pixelmon:hit_with_poke_ball", pokeBallCanStart, startResults));
   interactions.push(interaction("pixelmon:right_click", interactionConditions(canStart), startResults));
   interactions.push(interaction("pixelmon:right_click", interactionConditions([
     mainHand,
@@ -507,7 +992,7 @@ function buildInteractions(draft) {
     battleStart.battle_rules = draft.battleRules;
   }
 
-  interactions.push(interaction("pixelmon:close_dialogue", interactionConditions([constantBoolean(true)]), [battleStart]));
+  interactions.push(interaction("pixelmon:close_dialogue", [constantBoolean(true)], [battleStart]));
   interactions.push(interaction("pixelmon:lose_battle", { type: "pixelmon:true" }, [
     dialogue(draft.dialogueTitle, draft.winMessage, false),
     setTrainerContext(draft),
@@ -573,7 +1058,7 @@ function buildPresetJson(draft) {
 function validateDraft(draft) {
   const issues = [];
   const warnings = [
-    "Pokémon/specs, texturas e battle rules não são checados contra arquivos do jogo nesta v1."
+    "Pokémon, natures, abilities, held items, texturas e battle rules não são checados contra arquivos do jogo nesta v1."
   ];
 
   if (!NAMESPACE_RE.test(draft.namespace)) {
@@ -605,27 +1090,40 @@ function validateDraft(draft) {
   if (!Number.isFinite(draft.money) || draft.money < 0) {
     issues.push("Dinheiro não pode ser negativo.");
   }
-  if (draft.partyMode === "spec") {
-    if (!draft.partySpecs.length) {
-      issues.push("A equipe fixa precisa de ao menos uma spec.");
-    }
-  } else {
-    if (!draft.partyOptions.length) {
-      issues.push("A pool aleatória precisa de ao menos uma opção.");
-    }
-    if (!Number.isInteger(draft.minSelections) || draft.minSelections < 1) {
-      issues.push("Mínimo da pool deve ser maior que zero.");
-    }
-    if (!Number.isInteger(draft.maxSelections) || draft.maxSelections < 1) {
-      issues.push("Máximo da pool deve ser maior que zero.");
-    }
-    if (draft.minSelections > draft.maxSelections) {
-      issues.push("Mínimo da pool não pode ser maior que o máximo.");
-    }
-    if (draft.maxSelections > draft.partyOptions.length) {
-      issues.push("Máximo da pool não pode exceder a quantidade de opções.");
-    }
+  const configuredPokemon = draft.partyPokemon.filter(pokemonHasAnyValue);
+  if (!configuredPokemon.length) {
+    issues.push("Informe ao menos um Pokémon na equipe.");
   }
+  draft.partyPokemon.forEach((pokemon, index) => {
+    const slot = index + 1;
+    if (!pokemonHasAnyValue(pokemon)) {
+      return;
+    }
+    if (!pokemon.name) {
+      issues.push("Pokémon " + slot + " precisa de nome/spec base.");
+    }
+    if (pokemon.level === "" || !Number.isInteger(Number(pokemon.level)) || Number(pokemon.level) < 1 || Number(pokemon.level) > 100) {
+      issues.push("Pokémon " + slot + " precisa de lvl entre 1 e 100.");
+    }
+    pokemon.ivs.forEach((iv, statIndex) => {
+      if (iv !== "" && (!Number.isInteger(Number(iv)) || Number(iv) < 0 || Number(iv) > 31)) {
+        issues.push("IV " + STAT_FIELDS[statIndex].label + " do Pokémon " + slot + " deve ficar entre 0 e 31.");
+      }
+    });
+    let evTotal = 0;
+    pokemon.evs.forEach((ev, statIndex) => {
+      if (ev === "") {
+        return;
+      }
+      evTotal += Number(ev);
+      if (!Number.isInteger(Number(ev)) || Number(ev) < 0 || Number(ev) > 252) {
+        issues.push("EV " + STAT_FIELDS[statIndex].label + " do Pokémon " + slot + " deve ficar entre 0 e 252.");
+      }
+    });
+    if (evTotal > 510) {
+      issues.push("Total de EVs do Pokémon " + slot + " não pode passar de 510.");
+    }
+  });
   if (!draft.dialogueTitle) {
     issues.push("Título do diálogo é obrigatório.");
   }
@@ -695,8 +1193,6 @@ function render() {
     byId.cooldownKey.value = generatedKey;
     draft.cooldownKey = generatedKey;
   }
-  specPartyPanel.classList.toggle("hidden", draft.partyMode !== "spec");
-  randomPartyPanel.classList.toggle("hidden", draft.partyMode !== "random");
   cooldownFields.classList.toggle("hidden", !draft.cooldownEnabled);
 
   const validation = validateDraft(draft);
@@ -813,7 +1309,10 @@ function textFromMessagePlayer(result) {
 }
 
 function draftFromPresetJson(preset, fileName) {
-  const draft = { ...DEFAULT_DRAFT };
+  const draft = {
+    ...DEFAULT_DRAFT,
+    partyPokemon: normalizePartyPokemon(DEFAULT_DRAFT.partyPokemon)
+  };
   const fileBase = fileName ? fileName.replace(/\.json$/i, "") : "";
   if (fileBase && PATH_RE.test(fileBase)) {
     draft.presetPath = "trainers/" + fileBase;
@@ -845,13 +1344,12 @@ function draftFromPresetJson(preset, fileName) {
 
   const party = preset.party?.value;
   if (party?.type === "pixelmon:random_combination") {
-    draft.partyMode = "random";
-    draft.partyOptions = party.options || draft.partyOptions;
-    draft.minSelections = party.min_selections ?? draft.minSelections;
-    draft.maxSelections = party.max_selections ?? draft.maxSelections;
+    draft.partyPokemon = normalizePartyPokemon((party.options || []).slice(0, PARTY_SIZE).map((spec) => ({
+      ...parsePokemonSpec(spec),
+      level: ""
+    })));
   } else if (party?.type === "pixelmon:spec") {
-    draft.partyMode = "spec";
-    draft.partySpecs = party.specs || draft.partySpecs;
+    draft.partyPokemon = normalizePartyPokemon((party.specs || []).slice(0, PARTY_SIZE).map(parsePokemonSpec));
   }
 
   const rightClicks = findInteractions(preset, "pixelmon:right_click");
@@ -934,6 +1432,16 @@ document.querySelector("#resetButton").addEventListener("click", () => {
   showToast("Formulário resetado.");
 });
 document.querySelector("#loadJsonButton").addEventListener("click", () => loadJsonInput.click());
+openPokePasteButton.addEventListener("click", () => {
+  pokePasteImportPanel.classList.toggle("hidden");
+  if (!pokePasteImportPanel.classList.contains("hidden")) {
+    pokePasteInput.focus();
+  }
+});
+closePokePasteButton.addEventListener("click", () => {
+  pokePasteImportPanel.classList.add("hidden");
+});
+applyPokePasteButton.addEventListener("click", importPokePasteParty);
 themeToggleButton.addEventListener("click", () => {
   const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
   setTheme(nextTheme);
@@ -947,4 +1455,5 @@ loadJsonInput.addEventListener("change", () => {
 
 setTheme(preferredTheme(), false);
 setupCollapsiblePanels();
+setupAutocompleteLists();
 render();
