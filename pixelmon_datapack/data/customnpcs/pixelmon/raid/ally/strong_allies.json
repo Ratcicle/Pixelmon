@@ -1,0 +1,185 @@
+{
+  "biomes": [],
+  "star_range": {
+    "min": 3,
+    "max": 5
+  },
+  "allies": [
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Dragapult ability:Infiltrator move1:Dragon_Darts move2:Phantom_Force move3:Dragon_Dance move4:Shadow_Ball",
+      "child": false,
+      "weight": 1.0,
+      "name": "Aster",
+      "skin": "pixelmon:textures/steve/richboy.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Garchomp ability:RoughSkin move1:Earthquake move2:Dragon_Claw move3:Stone_Edge move4:Swords_Dance",
+      "child": false,
+      "weight": 1.0,
+      "name": "Kael",
+      "skin": "pixelmon:textures/steve/monk1.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Dragonite ability:Multiscale move1:Dragon_Dance move2:Extreme_Speed move3:Dragon_Claw move4:Fire_Punch",
+      "child": false,
+      "weight": 1.0,
+      "name": "Marina",
+      "skin": "pixelmon:textures/steve/battlegirl.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Metagross ability:ClearBody move1:Meteor_Mash move2:Zen_Headbutt move3:Bullet_Punch move4:Earthquake",
+      "child": false,
+      "weight": 1.0,
+      "name": "Orion",
+      "skin": "pixelmon:textures/steve/scientist_m.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Tyranitar ability:SandStream move1:Stone_Edge move2:Crunch move3:Earthquake move4:Dragon_Dance",
+      "child": false,
+      "weight": 1.0,
+      "name": "Ragnar",
+      "skin": "pixelmon:textures/steve/hiker.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Salamence ability:Intimidate move1:Dragon_Dance move2:Dragon_Claw move3:Fly move4:Crunch",
+      "child": false,
+      "weight": 1.0,
+      "name": "Selene",
+      "skin": "pixelmon:textures/steve/lass3.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Lucario ability:InnerFocus move1:Aura_Sphere move2:Flash_Cannon move3:Extreme_Speed move4:Swords_Dance",
+      "child": false,
+      "weight": 1.0,
+      "name": "Ren",
+      "skin": "pixelmon:textures/steve/blackbelt.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Volcarona ability:FlameBody move1:Fiery_Dance move2:Bug_Buzz move3:Quiver_Dance move4:Hurricane",
+      "child": false,
+      "weight": 1.0,
+      "name": "Liora",
+      "skin": "pixelmon:textures/steve/lass.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Excadrill ability:MoldBreaker move1:Earthquake move2:Iron_Head move3:Rock_Slide move4:Swords_Dance",
+      "child": false,
+      "weight": 1.0,
+      "name": "Brock",
+      "skin": "pixelmon:textures/steve/miner.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Ferrothorn ability:IronBarbs move1:Power_Whip move2:Gyro_Ball move3:Iron_Defense move4:Body_Press",
+      "child": false,
+      "weight": 1.0,
+      "name": "Vera",
+      "skin": "pixelmon:textures/steve/ranger_f.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Milotic ability:MarvelScale move1:Hydro_Pump move2:Scald move3:Recover move4:Ice_Beam",
+      "child": false,
+      "weight": 1.0,
+      "name": "Bianca",
+      "skin": "pixelmon:textures/steve/swimmer_f1.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Togekiss ability:SereneGrace move1:Air_Slash move2:Dazzling_Gleam move3:Aura_Sphere move4:Roost",
+      "child": false,
+      "weight": 1.0,
+      "name": "Iris",
+      "skin": "pixelmon:textures/steve/lass2.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Greninja ability:Protean move1:Hydro_Pump move2:Dark_Pulse move3:Ice_Beam move4:Water_Shuriken",
+      "child": false,
+      "weight": 1.0,
+      "name": "Noel",
+      "skin": "pixelmon:textures/steve/policeman.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Cinderace ability:Libero move1:Pyro_Ball move2:High_Jump_Kick move3:Quick_Attack move4:Bulk_Up",
+      "child": false,
+      "weight": 1.0,
+      "name": "Blair",
+      "skin": "pixelmon:textures/steve/football1.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Rillaboom ability:GrassySurge move1:Drum_Beating move2:Wood_Hammer move3:Knock_Off move4:Drain_Punch",
+      "child": false,
+      "weight": 1.0,
+      "name": "Milo",
+      "skin": "pixelmon:textures/steve/ranger_m.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Hydreigon ability:Levitate move1:Dark_Pulse move2:Dragon_Pulse move3:Flamethrower move4:Nasty_Plot",
+      "child": false,
+      "weight": 1.0,
+      "name": "Viktor",
+      "skin": "pixelmon:textures/steve/monk2.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Kingambit ability:SupremeOverlord move1:Kowtow_Cleave move2:Iron_Head move3:Swords_Dance move4:Sucker_Punch",
+      "child": false,
+      "weight": 1.0,
+      "name": "Cassius",
+      "skin": "pixelmon:textures/steve/knight.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Baxcalibur ability:ThermalExchange move1:Glaive_Rush move2:Icicle_Crash move3:Earthquake move4:Dragon_Dance",
+      "child": false,
+      "weight": 1.0,
+      "name": "Nora",
+      "skin": "pixelmon:textures/steve/iceleader1.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Palafin ability:ZeroToHero move1:Jet_Punch move2:Wave_Crash move3:Close_Combat move4:Bulk_Up",
+      "child": false,
+      "weight": 1.0,
+      "name": "Kai",
+      "skin": "pixelmon:textures/steve/swimmer_m1.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "IronHands ability:QuarkDrive move1:Drain_Punch move2:Thunder_Punch move3:Fake_Out move4:Belly_Drum",
+      "child": false,
+      "weight": 1.0,
+      "name": "Mira",
+      "skin": "pixelmon:textures/steve/scientist_f.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "FlutterMane ability:Protosynthesis move1:Moonblast move2:Shadow_Ball move3:Mystical_Fire move4:Calm_Mind",
+      "child": false,
+      "weight": 1.0,
+      "name": "Evelyn",
+      "skin": "pixelmon:textures/steve/hexmaniac.png"
+    },
+    {
+      "ai_mode": "pixelmon:advanced",
+      "spec": "Gholdengo ability:GoodAsGold move1:Make_It_Rain move2:Shadow_Ball move3:Nasty_Plot move4:Recover",
+      "child": false,
+      "weight": 1.0,
+      "name": "Aureo",
+      "skin": "pixelmon:textures/steve/monsieur.png"
+    }
+  ]
+}
