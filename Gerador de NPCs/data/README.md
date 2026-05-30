@@ -18,3 +18,4 @@ Categories:
 - `abilities.js`: ability ids such as `multiscale`.
 - `held-items.js`: held item ids such as `leftovers`, without `helditem:`.
 - `moves.js`: move ids such as `dragon_dance`, without `move1:`.
+- `npc-textures.js`: official Pixelmon NPC/player texture ResourceLocations.

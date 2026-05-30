@@ -89,15 +89,9 @@
         },
         {
           "event": "pixelmon:close_dialogue",
-          "conditions": [
-            {
-              "condition": {
-                "value": true,
-                "type": "pixelmon:constant_boolean"
-              },
-              "type": "pixelmon:interaction_condition"
-            }
-          ],
+          "conditions": {
+            "type": "pixelmon:true"
+          },
           "results": {
             "value": [
               {

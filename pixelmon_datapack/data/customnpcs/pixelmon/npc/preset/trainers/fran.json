@@ -1,0 +1,335 @@
+{
+  "interactions": {
+    "value": {
+      "interactions": [
+        {
+          "event": "pixelmon:hit_with_poke_ball",
+          "conditions": [
+            {
+              "condition": {
+                "player": {
+                  "key": "pixelmon:player",
+                  "type": "pixelmon:context_player"
+                },
+                "type": "pixelmon:can_battle"
+              },
+              "type": "pixelmon:interaction_condition"
+            },
+            {
+              "condition": {
+                "condition": {
+                  "condition": {
+                    "player": {
+                      "key": "pixelmon:player",
+                      "type": "pixelmon:context_player"
+                    },
+                    "cooldown_key": "customnpcs:trainers_fran",
+                    "cooldown": 1,
+                    "unit": "HOURS",
+                    "type": "pixelmon:on_cooldown"
+                  },
+                  "type": "pixelmon:interaction_condition"
+                },
+                "type": "pixelmon:logical_not"
+              },
+              "type": "pixelmon:interaction_condition"
+            }
+          ],
+          "results": {
+            "value": [
+              {
+                "title": "pixelmon.npc.dialogue.battle.trainer.wild",
+                "message": "Hora de batalhar!",
+                "type": "pixelmon:open_dialogue"
+              }
+            ],
+            "type": "pixelmon:constant"
+          }
+        },
+        {
+          "event": "pixelmon:right_click",
+          "conditions": [
+            {
+              "condition": {
+                "first": {
+                  "value": "MAIN_HAND",
+                  "type": "pixelmon:constant_string"
+                },
+                "second": {
+                  "type": "pixelmon:hand_used"
+                },
+                "type": "pixelmon:string_compare"
+              },
+              "type": "pixelmon:interaction_condition"
+            },
+            {
+              "condition": {
+                "player": {
+                  "key": "pixelmon:player",
+                  "type": "pixelmon:context_player"
+                },
+                "type": "pixelmon:can_battle"
+              },
+              "type": "pixelmon:interaction_condition"
+            },
+            {
+              "condition": {
+                "condition": {
+                  "condition": {
+                    "player": {
+                      "key": "pixelmon:player",
+                      "type": "pixelmon:context_player"
+                    },
+                    "cooldown_key": "customnpcs:trainers_fran",
+                    "cooldown": 1,
+                    "unit": "HOURS",
+                    "type": "pixelmon:on_cooldown"
+                  },
+                  "type": "pixelmon:interaction_condition"
+                },
+                "type": "pixelmon:logical_not"
+              },
+              "type": "pixelmon:interaction_condition"
+            }
+          ],
+          "results": {
+            "value": [
+              {
+                "title": "pixelmon.npc.dialogue.battle.trainer.wild",
+                "message": "Hora de batalhar!",
+                "type": "pixelmon:open_dialogue"
+              }
+            ],
+            "type": "pixelmon:constant"
+          }
+        },
+        {
+          "event": "pixelmon:right_click",
+          "conditions": [
+            {
+              "condition": {
+                "first": {
+                  "value": "MAIN_HAND",
+                  "type": "pixelmon:constant_string"
+                },
+                "second": {
+                  "type": "pixelmon:hand_used"
+                },
+                "type": "pixelmon:string_compare"
+              },
+              "type": "pixelmon:interaction_condition"
+            },
+            {
+              "condition": {
+                "condition": {
+                  "condition": {
+                    "player": {
+                      "key": "pixelmon:player",
+                      "type": "pixelmon:context_player"
+                    },
+                    "type": "pixelmon:can_battle"
+                  },
+                  "type": "pixelmon:interaction_condition"
+                },
+                "type": "pixelmon:logical_not"
+              },
+              "type": "pixelmon:interaction_condition"
+            }
+          ],
+          "results": {
+            "value": [
+              {
+                "messages": [
+                  {
+                    "text": "Você não tem nenhum Pokémon apto para batalhar!"
+                  }
+                ],
+                "type": "pixelmon:message_player"
+              }
+            ],
+            "type": "pixelmon:constant"
+          }
+        },
+        {
+          "event": "pixelmon:right_click",
+          "conditions": [
+            {
+              "condition": {
+                "first": {
+                  "value": "MAIN_HAND",
+                  "type": "pixelmon:constant_string"
+                },
+                "second": {
+                  "type": "pixelmon:hand_used"
+                },
+                "type": "pixelmon:string_compare"
+              },
+              "type": "pixelmon:interaction_condition"
+            },
+            {
+              "condition": {
+                "player": {
+                  "key": "pixelmon:player",
+                  "type": "pixelmon:context_player"
+                },
+                "cooldown_key": "customnpcs:trainers_fran",
+                "cooldown": 1,
+                "unit": "HOURS",
+                "type": "pixelmon:on_cooldown"
+              },
+              "type": "pixelmon:interaction_condition"
+            }
+          ],
+          "results": {
+            "value": [
+              {
+                "messages": [
+                  {
+                    "text": "Você já batalhou com este treinador recentemente."
+                  }
+                ],
+                "type": "pixelmon:message_player"
+              }
+            ],
+            "type": "pixelmon:constant"
+          }
+        },
+        {
+          "event": "pixelmon:close_dialogue",
+          "conditions": {
+            "type": "pixelmon:true"
+          },
+          "results": {
+            "value": [
+              {
+                "type": "pixelmon:player_start_npc_battle"
+              }
+            ],
+            "type": "pixelmon:constant"
+          }
+        },
+        {
+          "event": "pixelmon:lose_battle",
+          "conditions": {
+            "type": "pixelmon:true"
+          },
+          "results": {
+            "value": [
+              {
+                "title": "pixelmon.npc.dialogue.battle.trainer.wild",
+                "message": "Boa batalha.",
+                "type": "pixelmon:open_dialogue",
+                "fire_close_event": false
+              },
+              {
+                "key": "pixelmon:trainer",
+                "value": "trainers_fran",
+                "type": "pixelmon:set_string_context"
+              },
+              {
+                "type": "pixelmon:trigger_interaction_event",
+                "event": "pixelmon:lose_to_trainer"
+              }
+            ],
+            "type": "pixelmon:constant"
+          }
+        },
+        {
+          "event": "pixelmon:win_battle",
+          "conditions": {
+            "type": "pixelmon:true"
+          },
+          "results": {
+            "value": [
+              {
+                "title": "pixelmon.npc.dialogue.battle.trainer.wild",
+                "message": "Você foi melhor desta vez.",
+                "type": "pixelmon:open_dialogue",
+                "fire_close_event": false
+              },
+              {
+                "money": 10000,
+                "type": "pixelmon:give_money"
+              },
+              {
+                "player": {
+                  "key": "pixelmon:player",
+                  "type": "pixelmon:context_player"
+                },
+                "key": "customnpcs:trainers_fran",
+                "type": "pixelmon:set_cooldown"
+              },
+              {
+                "key": "pixelmon:trainer",
+                "value": "trainers_fran",
+                "type": "pixelmon:set_string_context"
+              },
+              {
+                "type": "pixelmon:trigger_interaction_event",
+                "event": "pixelmon:defeat_trainer"
+              }
+            ],
+            "type": "pixelmon:constant"
+          }
+        }
+      ]
+    },
+    "type": "pixelmon:constant"
+  },
+  "properties": {
+    "value": {
+      "health": 20,
+      "eyeHeight": 1.9,
+      "dimensions": {
+        "width": 0.65,
+        "height": 2
+      },
+      "pushable": true,
+      "child": false,
+      "invulnerable": false,
+      "immovable": false,
+      "nameplate": true,
+      "title": {
+        "text": "Zé da Roça",
+        "color": "aqua"
+      }
+    },
+    "type": "pixelmon:constant"
+  },
+  "party": {
+    "value": {
+      "specs": [
+        "Dracovish lvl:80 ability:strongjaw helditem:choice_scarf nature:jolly ivhp:31 ivatk:31 ivdef:31 ivspatk:31 ivspdef:31 ivspd:31 evhp:0 evatk:252 evdef:4 evspatk:0 evspdef:0 evspd:252 move1:fishious_rend move2:crunch move3:psychic_fangs move4:outrage",
+        "Arcanine lvl:80 ability:intimidate helditem:heavy_duty_boots nature:adamant ivhp:31 ivatk:31 ivdef:31 ivspatk:31 ivspdef:31 ivspd:31 evhp:252 evatk:252 evdef:0 evspatk:0 evspdef:0 evspd:4 move1:flare_blitz move2:extreme_speed move3:wild_charge move4:will-o-wisp",
+        "Lucario lvl:80 ability:innerfocus helditem:life_orb nature:jolly ivhp:31 ivatk:31 ivdef:31 ivspatk:31 ivspdef:31 ivspd:31 evhp:0 evatk:252 evdef:0 evspatk:0 evspdef:4 evspd:252 move1:close_combat move2:meteor_mash move3:extreme_speed move4:swords_dance",
+        "Avalugg lvl:80 ability:sturdy helditem:leftovers nature:impish ivhp:31 ivatk:31 ivdef:31 ivspatk:31 ivspdef:31 ivspd:31 evhp:252 evatk:0 evdef:252 evspatk:0 evspdef:4 evspd:0 move1:avalanche move2:body_press move3:rapid_spin move4:recover",
+        "Pelipper lvl:80 ability:drizzle helditem:damp_rock nature:bold ivhp:31 ivatk:31 ivdef:31 ivspatk:31 ivspdef:31 ivspd:31 evhp:252 evatk:0 evdef:252 evspatk:4 evspdef:0 evspd:0 move1:scald move2:hurricane move3:u-turn move4:roost",
+        "Kingdra lvl:80 ability:swiftswim helditem:life_orb nature:modest ivhp:31 ivatk:31 ivdef:31 ivspatk:31 ivspdef:31 ivspd:31 evhp:4 evatk:0 evdef:0 evspatk:252 evspdef:0 evspd:252 move1:hydro_pump move2:draco_meteor move3:hurricane move4:ice_beam"
+      ],
+      "type": "pixelmon:spec"
+    },
+    "type": "pixelmon:constant"
+  },
+  "names": {
+    "values": [
+      "Fran"
+    ],
+    "type": "pixelmon:uniformly_random"
+  },
+  "models": {
+    "value": {
+      "slim": false,
+      "texture": "pixelmon:textures/steve/bugcatcher1.png",
+      "type": "pixelmon:player"
+    },
+    "type": "pixelmon:constant"
+  },
+  "ai_provider": {
+    "type": "pixelmon:constant",
+    "value": {
+      "type": "pixelmon:stand_and_look",
+      "look_distance": 10,
+      "swim": true
+    }
+  }
+}

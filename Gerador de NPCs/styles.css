@@ -261,8 +261,40 @@ input[type="radio"] {
   font-size: 13px;
 }
 
-.party-slot-grid {
-  grid-template-columns: minmax(0, 1.3fr) minmax(92px, 0.45fr) minmax(0, 1fr) minmax(0, 1fr);
+.grid.party-slot-grid {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.grid.party-slot-grid > .field {
+  grid-column: span 6;
+}
+
+.grid.party-slot-grid > .field.full,
+.grid.party-slot-grid > .stat-block {
+  grid-column: 1 / -1;
+}
+
+.grid.party-slot-grid > .party-species {
+  grid-column: span 5;
+}
+
+.grid.party-slot-grid > .party-form {
+  grid-column: span 5;
+}
+
+.grid.party-slot-grid > .party-level {
+  grid-column: span 2;
+}
+
+.party-slot-grid label,
+.party-slot-grid .field-label {
+  font-size: 12px;
+}
+
+.party-slot-grid input {
+  min-height: 34px;
+  padding: 7px 9px;
 }
 
 .stat-block {
@@ -571,10 +603,20 @@ label,
   .form-stack,
   .grid.three,
   .party-grid,
-  .party-slot-grid,
   .stat-grid,
   .radio-row,
   .check-grid {
     grid-template-columns: 1fr;
+  }
+
+  .grid.party-slot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grid.party-slot-grid > .field,
+  .grid.party-slot-grid > .party-species,
+  .grid.party-slot-grid > .party-form,
+  .grid.party-slot-grid > .party-level {
+    grid-column: 1 / -1;
   }
 }

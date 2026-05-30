@@ -45,11 +45,15 @@
               <fieldset class="pokemon-slot">
                 <legend>Pokémon 1</legend>
                 <div class="grid party-slot-grid">
-                  <div class="field">
-                    <label for="pokemon1Name">Nome/spec base</label>
+                  <div class="field party-species">
+                    <label for="pokemon1Name">Species</label>
                     <input id="pokemon1Name" name="pokemon1Name" value="Pikachu" spellcheck="false">
                   </div>
-                  <div class="field">
+                  <div class="field party-form">
+                    <label for="pokemon1Form">Form</label>
+                    <input id="pokemon1Form" name="pokemon1Form" placeholder="base" spellcheck="false">
+                  </div>
+                  <div class="field party-level">
                     <label for="pokemon1Level">Lvl</label>
                     <input id="pokemon1Level" name="pokemon1Level" type="number" min="1" max="100" step="1" value="12">
                   </div>
@@ -87,11 +91,15 @@
               <fieldset class="pokemon-slot">
                 <legend>Pokémon 2</legend>
                 <div class="grid party-slot-grid">
-                  <div class="field">
-                    <label for="pokemon2Name">Nome/spec base</label>
+                  <div class="field party-species">
+                    <label for="pokemon2Name">Species</label>
                     <input id="pokemon2Name" name="pokemon2Name" value="Bulbasaur" spellcheck="false">
                   </div>
-                  <div class="field">
+                  <div class="field party-form">
+                    <label for="pokemon2Form">Form</label>
+                    <input id="pokemon2Form" name="pokemon2Form" placeholder="base" spellcheck="false">
+                  </div>
+                  <div class="field party-level">
                     <label for="pokemon2Level">Lvl</label>
                     <input id="pokemon2Level" name="pokemon2Level" type="number" min="1" max="100" step="1" value="10">
                   </div>
@@ -129,11 +137,15 @@
               <fieldset class="pokemon-slot">
                 <legend>Pokémon 3</legend>
                 <div class="grid party-slot-grid">
-                  <div class="field">
-                    <label for="pokemon3Name">Nome/spec base</label>
+                  <div class="field party-species">
+                    <label for="pokemon3Name">Species</label>
                     <input id="pokemon3Name" name="pokemon3Name" spellcheck="false">
                   </div>
-                  <div class="field">
+                  <div class="field party-form">
+                    <label for="pokemon3Form">Form</label>
+                    <input id="pokemon3Form" name="pokemon3Form" placeholder="base" spellcheck="false">
+                  </div>
+                  <div class="field party-level">
                     <label for="pokemon3Level">Lvl</label>
                     <input id="pokemon3Level" name="pokemon3Level" type="number" min="1" max="100" step="1">
                   </div>
@@ -171,11 +183,15 @@
               <fieldset class="pokemon-slot">
                 <legend>Pokémon 4</legend>
                 <div class="grid party-slot-grid">
-                  <div class="field">
-                    <label for="pokemon4Name">Nome/spec base</label>
+                  <div class="field party-species">
+                    <label for="pokemon4Name">Species</label>
                     <input id="pokemon4Name" name="pokemon4Name" spellcheck="false">
                   </div>
-                  <div class="field">
+                  <div class="field party-form">
+                    <label for="pokemon4Form">Form</label>
+                    <input id="pokemon4Form" name="pokemon4Form" placeholder="base" spellcheck="false">
+                  </div>
+                  <div class="field party-level">
                     <label for="pokemon4Level">Lvl</label>
                     <input id="pokemon4Level" name="pokemon4Level" type="number" min="1" max="100" step="1">
                   </div>
@@ -213,11 +229,15 @@
               <fieldset class="pokemon-slot">
                 <legend>Pokémon 5</legend>
                 <div class="grid party-slot-grid">
-                  <div class="field">
-                    <label for="pokemon5Name">Nome/spec base</label>
+                  <div class="field party-species">
+                    <label for="pokemon5Name">Species</label>
                     <input id="pokemon5Name" name="pokemon5Name" spellcheck="false">
                   </div>
-                  <div class="field">
+                  <div class="field party-form">
+                    <label for="pokemon5Form">Form</label>
+                    <input id="pokemon5Form" name="pokemon5Form" placeholder="base" spellcheck="false">
+                  </div>
+                  <div class="field party-level">
                     <label for="pokemon5Level">Lvl</label>
                     <input id="pokemon5Level" name="pokemon5Level" type="number" min="1" max="100" step="1">
                   </div>
@@ -255,11 +275,15 @@
               <fieldset class="pokemon-slot">
                 <legend>Pokémon 6</legend>
                 <div class="grid party-slot-grid">
-                  <div class="field">
-                    <label for="pokemon6Name">Nome/spec base</label>
+                  <div class="field party-species">
+                    <label for="pokemon6Name">Species</label>
                     <input id="pokemon6Name" name="pokemon6Name" spellcheck="false">
                   </div>
-                  <div class="field">
+                  <div class="field party-form">
+                    <label for="pokemon6Form">Form</label>
+                    <input id="pokemon6Form" name="pokemon6Form" placeholder="base" spellcheck="false">
+                  </div>
+                  <div class="field party-level">
                     <label for="pokemon6Level">Lvl</label>
                     <input id="pokemon6Level" name="pokemon6Level" type="number" min="1" max="100" step="1">
                   </div>
@@ -345,9 +369,9 @@
           <div class="panel-body">
             <div class="grid">
               <div class="field full">
-                <label for="textures">Texturas</label>
-                <textarea id="textures" name="textures" spellcheck="false">pixelmon:textures/steve/bugcatcher1.png</textarea>
-                <span class="hint">Uma ResourceLocation por linha.</span>
+                <label for="textures">Textura</label>
+                <select id="textures" name="textures"></select>
+                <span class="hint">Texturas oficiais de NPC do Pixelmon.</span>
               </div>
               <label class="checkline" for="slim">
                 <input type="checkbox" id="slim" name="slim" checked>
@@ -539,6 +563,7 @@
   <script src="data/abilities.js"></script>
   <script src="data/held-items.js"></script>
   <script src="data/moves.js"></script>
+  <script src="data/npc-textures.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

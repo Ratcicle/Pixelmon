@@ -12,6 +12,7 @@ const STAT_FIELDS = [
 ];
 const POKEMON_FIELDS = [
   "Name",
+  "Form",
   "Level",
   "Nature",
   "Ability",
@@ -24,12 +25,12 @@ const POKEMON_FIELDS = [
   ...STAT_FIELDS.map((stat) => "Ev" + stat.suffix)
 ];
 const DEFAULT_PARTY = [
-  { name: "Pikachu", level: 12, nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] },
-  { name: "Bulbasaur", level: 10, nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] },
-  { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
-  { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
-  { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
-  { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] }
+  { name: "Pikachu", form: "", level: 12, nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] },
+  { name: "Bulbasaur", form: "", level: 10, nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: [31, 31, 31, 31, 31, 31], evs: [0, 0, 0, 0, 0, 0] },
+  { name: "", form: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
+  { name: "", form: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
+  { name: "", form: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] },
+  { name: "", form: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] }
 ];
 const DEFAULT_DRAFT = {
   namespace: "customnpcs",
@@ -285,6 +286,34 @@ function resolveDatabaseValue(key, value, fallback = "token") {
   return databaseLookup(key).get(lookupKey(trimmed)) || (fallback === "raw" ? trimmed : fallbackToken(trimmed));
 }
 
+const POKEPASTE_SPECIES_FORM_ALIASES = new Map([
+  ["Landorus-Incarnate", "Landorus", "incarnate"],
+  ["Landorus-Therian", "Landorus", "therian"],
+  ["Tornadus-Incarnate", "Tornadus", "incarnate"],
+  ["Tornadus-Therian", "Tornadus", "therian"],
+  ["Thundurus-Incarnate", "Thundurus", "incarnate"],
+  ["Thundurus-Therian", "Thundurus", "therian"],
+  ["Enamorus-Incarnate", "Enamorus", "incarnate"],
+  ["Enamorus-Therian", "Enamorus", "therian"],
+  ["Rotom-Heat", "Rotom", "heat"],
+  ["Rotom-Wash", "Rotom", "wash"],
+  ["Rotom-Frost", "Rotom", "frost"],
+  ["Rotom-Fan", "Rotom", "fan"],
+  ["Rotom-Mow", "Rotom", "mow"]
+].map(([alias, name, formName]) => [lookupKey(alias), { name, form: formName }]));
+
+function resolvePokePasteSpecies(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) {
+    return { name: "", form: "" };
+  }
+  const alias = POKEPASTE_SPECIES_FORM_ALIASES.get(lookupKey(trimmed));
+  if (alias) {
+    return alias;
+  }
+  return { name: resolveDatabaseValue("species", trimmed, "raw"), form: "" };
+}
+
 function createDatalist(id, entries) {
   const datalist = document.createElement("datalist");
   datalist.id = id;
@@ -326,6 +355,57 @@ function setupAutocompleteLists() {
       byId[id]?.setAttribute("list", config.datalistId);
     });
   });
+}
+
+function textureLabel(texture) {
+  return String(texture || "")
+    .replace(/^pixelmon:textures\//, "")
+    .replace(/\.png$/i, "");
+}
+
+function hasSelectOption(select, value) {
+  return Array.from(select.options).some((option) => option.value === value);
+}
+
+function appendTextureOption(parent, texture, custom) {
+  const option = document.createElement("option");
+  option.value = texture;
+  option.textContent = textureLabel(texture) + (custom ? " (custom)" : "");
+  parent.appendChild(option);
+}
+
+function setTextureSelectValue(texture) {
+  const value = String(texture || "").trim();
+  if (value && !hasSelectOption(byId.textures, value)) {
+    appendTextureOption(byId.textures, value, true);
+  }
+  byId.textures.value = value;
+}
+
+function setupTextureSelect() {
+  const groups = new Map([
+    ["NPC", document.createElement("optgroup")],
+    ["Steve", document.createElement("optgroup")]
+  ]);
+  groups.get("NPC").label = "NPC";
+  groups.get("Steve").label = "Steve/player";
+
+  byId.textures.innerHTML = "";
+  databaseValues("npcTextures").forEach((entry) => {
+    const group = entry.value.startsWith("pixelmon:textures/steve/") ? groups.get("Steve") : groups.get("NPC");
+    appendTextureOption(group, entry.value, false);
+  });
+
+  groups.forEach((group) => {
+    if (group.children.length) {
+      byId.textures.appendChild(group);
+    }
+  });
+
+  if (!byId.textures.options.length) {
+    appendTextureOption(byId.textures, DEFAULT_DRAFT.textures[0], false);
+  }
+  setTextureSelectValue(DEFAULT_DRAFT.textures[0]);
 }
 
 function lines(value) {
@@ -418,7 +498,7 @@ function boolSelectValue(id) {
 }
 
 function emptyPokemon() {
-  return { name: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] };
+  return { name: "", form: "", level: "", nature: "", ability: "", heldItem: "", moves: ["", "", "", ""], ivs: ["", "", "", "", "", ""], evs: ["", "", "", "", "", ""] };
 }
 
 function normalizeStatValues(values) {
@@ -435,6 +515,7 @@ function normalizePartyPokemon(pokemon) {
   }));
   return normalized.map((entry) => ({
     name: String(entry.name || "").trim(),
+    form: String(entry.form || "").trim(),
     level: entry.level === "" || entry.level === null || typeof entry.level === "undefined" ? "" : Number(entry.level),
     nature: String(entry.nature || "").trim(),
     ability: String(entry.ability || "").trim(),
@@ -459,6 +540,7 @@ function readPartyPokemon() {
     });
     return {
       name: byId["pokemon" + slot + "Name"].value.trim(),
+      form: byId["pokemon" + slot + "Form"].value.trim(),
       level: levelValue ? Number(levelValue) : "",
       nature: byId["pokemon" + slot + "Nature"].value.trim(),
       ability: byId["pokemon" + slot + "Ability"].value.trim(),
@@ -474,6 +556,7 @@ function writePartyPokemon(pokemon) {
   normalizePartyPokemon(pokemon).forEach((entry, index) => {
     const slot = index + 1;
     byId["pokemon" + slot + "Name"].value = entry.name;
+    byId["pokemon" + slot + "Form"].value = entry.form;
     byId["pokemon" + slot + "Level"].value = entry.level === "" || Number.isNaN(entry.level) ? "" : entry.level;
     byId["pokemon" + slot + "Nature"].value = entry.nature;
     byId["pokemon" + slot + "Ability"].value = entry.ability;
@@ -493,6 +576,7 @@ function writePartyPokemon(pokemon) {
 function pokemonHasAnyValue(pokemon) {
   return Boolean(
     pokemon.name ||
+    pokemon.form ||
     pokemon.level !== "" ||
     pokemon.nature ||
     pokemon.ability ||
@@ -503,8 +587,35 @@ function pokemonHasAnyValue(pokemon) {
   );
 }
 
+function splitInlineForm(name) {
+  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+  const baseParts = [];
+  let formName = "";
+
+  parts.forEach((part) => {
+    const separator = part.indexOf(":");
+    const key = separator > 0 ? part.slice(0, separator).toLowerCase() : "";
+    const value = separator > 0 ? part.slice(separator + 1) : "";
+    if (key === "form" && value && !formName) {
+      formName = value;
+    } else {
+      baseParts.push(part);
+    }
+  });
+
+  return {
+    name: baseParts.join(" "),
+    form: formName
+  };
+}
+
 function buildPokemonSpec(pokemon) {
-  const parts = [pokemon.name];
+  const inline = splitInlineForm(pokemon.name);
+  const parts = [inline.name];
+  const formName = fallbackToken(pokemon.form || inline.form);
+  if (formName) {
+    parts.push("form:" + formName);
+  }
   if (pokemon.level !== "" && Number.isFinite(Number(pokemon.level))) {
     parts.push("lvl:" + Number(pokemon.level));
   }
@@ -548,6 +659,8 @@ function parsePokemonSpec(spec) {
 
     if ((key === "lvl" || key === "level") && value) {
       pokemon.level = Number(value);
+    } else if (key === "form" && value) {
+      pokemon.form = value;
     } else if (key === "nature" && value) {
       pokemon.nature = value;
     } else if (key === "ability" && value) {
@@ -633,7 +746,9 @@ function parsePokePasteSet(block) {
     evs: [0, 0, 0, 0, 0, 0]
   };
   const header = parsePokePasteHeader(setLines[0]);
-  pokemon.name = resolveDatabaseValue("species", header.species, "raw");
+  const species = resolvePokePasteSpecies(header.species);
+  pokemon.name = species.name;
+  pokemon.form = species.form;
   pokemon.heldItem = resolveDatabaseValue("heldItems", header.heldItem);
   let recognizedDetails = Boolean(header.heldItem);
 
@@ -697,7 +812,7 @@ function readDraft() {
     titleText: byId.titleText.value.trim(),
     titleColor: byId.titleColor.value,
     titleBold: byId.titleBold.checked,
-    textures: lines(byId.textures.value),
+    textures: byId.textures.value ? [byId.textures.value] : [],
     slim: byId.slim.checked,
     health: numberValue("health"),
     eyeHeight: numberValue("eyeHeight"),
@@ -734,7 +849,7 @@ function writeDraft(draft) {
   byId.titleText.value = next.titleText;
   byId.titleColor.value = next.titleColor;
   byId.titleBold.checked = Boolean(next.titleBold);
-  byId.textures.value = next.textures.join("\n");
+  setTextureSelectValue(next.textures[0] || DEFAULT_DRAFT.textures[0]);
   byId.slim.checked = Boolean(next.slim);
   byId.health.value = next.health;
   byId.eyeHeight.value = next.eyeHeight;
@@ -992,7 +1107,7 @@ function buildInteractions(draft) {
     battleStart.battle_rules = draft.battleRules;
   }
 
-  interactions.push(interaction("pixelmon:close_dialogue", [constantBoolean(true)], [battleStart]));
+  interactions.push(interaction("pixelmon:close_dialogue", { type: "pixelmon:true" }, [battleStart]));
   interactions.push(interaction("pixelmon:lose_battle", { type: "pixelmon:true" }, [
     dialogue(draft.dialogueTitle, draft.winMessage, false),
     setTrainerContext(draft),
@@ -1100,7 +1215,7 @@ function validateDraft(draft) {
       return;
     }
     if (!pokemon.name) {
-      issues.push("Pokémon " + slot + " precisa de nome/spec base.");
+      issues.push("Pokémon " + slot + " precisa de species.");
     }
     if (pokemon.level === "" || !Number.isInteger(Number(pokemon.level)) || Number(pokemon.level) < 1 || Number(pokemon.level) > 100) {
       issues.push("Pokémon " + slot + " precisa de lvl entre 1 e 100.");
@@ -1456,4 +1571,5 @@ loadJsonInput.addEventListener("change", () => {
 setTheme(preferredTheme(), false);
 setupCollapsiblePanels();
 setupAutocompleteLists();
+setupTextureSelect();
 render();

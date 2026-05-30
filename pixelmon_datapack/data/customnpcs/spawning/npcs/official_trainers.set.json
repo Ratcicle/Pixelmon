@@ -1,0 +1,75 @@
+{
+  "id": "OfficialCustomTrainers",
+  "spawnInfos": [
+    {
+      "preset": "customnpcs:trainers/peguel",
+      "stringLocationTypes": [
+        "Land"
+      ],
+      "condition": {
+        "biomes": [
+          "#pixelmon:spawning/plains",
+          "#pixelmon:spawning/all_forests",
+          "#pixelmon:spawning/savannas",
+          "#pixelmon:spawning/mountainous",
+          "#pixelmon:spawning/hills",
+          "#pixelmon:spawning/clearings"
+        ]
+      },
+      "typeID": "npc",
+      "rarity": 30.0
+    },
+    {
+      "preset": "customnpcs:trainers/th",
+      "stringLocationTypes": [
+        "Land"
+      ],
+      "condition": {
+        "biomes": [
+          "#minecraft:is_overworld"
+        ]
+      },
+      "typeID": "npc",
+      "rarity": 30.0
+    },
+    {
+      "preset": "customnpcs:trainers/gb",
+      "stringLocationTypes": [
+        "Land"
+      ],
+      "condition": {
+        "biomes": [
+          "#minecraft:is_overworld"
+        ]
+      },
+      "typeID": "npc",
+      "rarity": 30.0
+    },
+    {
+      "preset": "customnpcs:trainers/fran",
+      "stringLocationTypes": [
+        "Land"
+      ],
+      "condition": {
+        "biomes": [
+          "#minecraft:is_overworld"
+        ]
+      },
+      "typeID": "npc",
+      "rarity": 30.0
+    },
+    {
+      "preset": "customnpcs:trainers/jonas",
+      "stringLocationTypes": [
+        "Land"
+      ],
+      "condition": {
+        "biomes": [
+          "#minecraft:is_overworld"
+        ]
+      },
+      "typeID": "npc",
+      "rarity": 30.0
+    }
+  ]
+}
